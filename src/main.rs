@@ -51,8 +51,8 @@ async fn main() {
                     ..Default::default()
                 },
                 hide_show: HideShowConfig {
-                    allow_spec_url_load: false,
-                    allow_spec_file_load: false,
+                    allow_spec_url_load: true,
+                    allow_spec_file_load: true,
                     ..Default::default()
                 },
                 ..Default::default()
