@@ -1,0 +1,46 @@
+[package]
+name = "stw-api"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+#ASYNC
+tokio = { version = "1.32.0", features = ["full"] }
+tokio-diesel = {git = "https://github.com/SrJohnathan/tokio-diesel"  }
+
+#DATABASE
+diesel = { version = "2.1.0", features = ["postgres","r2d2", "uuid", "chrono","serde_json"] }
+diesel_migrations = "2.1.0"
+
+#JSON
+serde_json = "1.0"
+serde_derive = "1.0"
+serde = "1.0"
+
+
+
+#ROCKET_SERVER_HTTP
+rocket = { version = "0.5.0-rc.2", features = ["json"] }
+rocket_cors = { git = "https://github.com/lawliet89/rocket_cors", branch = "master" }
+rocket_okapi = { version = "0.8.0-rc.3", features = [ "rapidoc","swagger"] }
+schemars = { version = "0.8.6", features = ["preserve_order"] }
+
+
+#CLIENT_HTTP
+reqwest = { version = "0.11" , features = [ "json" ]}
+
+
+#S3
+rust-s3 = "0.33.0"
+
+#UTILL
+base64 = "*"
+regex = "1.7.1"
+futures = "0.3.15"
+dotenvy = "0.15"
+multipart = "*"
+chrono = "0.4"
+serde_urlencoded = "0.7"
