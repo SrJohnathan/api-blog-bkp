@@ -22,7 +22,7 @@ pub mod mid;
 
 #[tokio::main]
 async fn main() {
-    dotenv().unwrap();
+   // dotenv().unwrap();
     let mut channel: (Sender<String>, Receiver<String>) = mpsc::channel(100);
 
     let db =
@@ -49,6 +49,7 @@ async fn main() {
                 ui: UiConfig {
                     theme: Theme::Dark,
                     ..Default::default()
+
                 },
                 hide_show: HideShowConfig {
                     allow_spec_url_load: true,
