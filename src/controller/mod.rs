@@ -1,8 +1,9 @@
 use rocket::Route;
 use rocket_okapi::openapi_get_routes;
 
-mod controller_lead;
+
 mod category;
+mod post;
 
 
 pub fn routes() -> Vec<Route> {
@@ -11,7 +12,14 @@ pub fn routes() -> Vec<Route> {
         category::all,
         category::fisrt,
         category::insert,
-        category::delete
+        category::delete,
+
+        post::all,
+        post::fisrt,
+        post::insert,
+        post::delete,
+        post::update,
+        post::view
 
 
 ]

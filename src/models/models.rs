@@ -4,15 +4,28 @@
 #![allow(clippy::all)]
 
 
+use chrono::NaiveDateTime;
 use diesel::Queryable;
-use rocket_okapi::JsonSchema;
-use serde_derive::Serialize;
+use schemars::JsonSchema;
+use serde_derive::{Deserialize, Serialize};
+use crate::models::new_models::TipoPost;
 
-#[derive(Queryable, Debug,JsonSchema,Serialize)]
+
+#[derive(Queryable, Debug,Serialize,JsonSchema)]
 pub struct Category {
     pub id: i32,
     pub name: String,
     pub active: bool,
 }
 
+#[derive(Queryable, Debug,Serialize,Deserialize,JsonSchema)]
+pub struct Post {
+    pub id: i32,
+    pub titulo: String,
+    pub categoria_id: Option<i32>,
+    pub total_views: Option<i32>,
+    pub data_criacao: Option<NaiveDateTime>,
+    pub tipo: TipoPost,
+    pub conteudo: Option<String>,
+}
 

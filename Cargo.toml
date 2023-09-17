@@ -19,6 +19,7 @@ tokio-diesel = {git = "https://github.com/SrJohnathan/tokio-diesel"  }
 #DATABASE
 diesel = { version = "2.1.0", features = ["postgres","r2d2", "uuid", "chrono","serde_json"] }
 diesel_migrations = "2.1.0"
+diesel-derive-enum = { version = "2.1.0", features = ["postgres"] }
 
 #JSON
 serde_json = "1.0"
@@ -31,7 +32,7 @@ serde = "1.0"
 rocket = { version = "0.5.0-rc.2", features = ["json"] }
 rocket_cors = { git = "https://github.com/lawliet89/rocket_cors", branch = "master" }
 rocket_okapi = { version = "0.8.0-rc.3", features = [ "rapidoc","swagger"] }
-schemars = { version = "0.8.6", features = ["preserve_order"] }
+schemars = { version = "0.8.6", features = ["preserve_order","chrono","derive","enumset"] }
 
 
 #CLIENT_HTTP
@@ -47,5 +48,5 @@ regex = "1.7.1"
 futures = "0.3.15"
 dotenvy = "0.15"
 multipart = "*"
-chrono = "0.4"
+chrono = {version = "0.4.31",features = ["serde"]}
 serde_urlencoded = "0.7"

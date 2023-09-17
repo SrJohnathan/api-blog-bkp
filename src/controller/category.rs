@@ -35,7 +35,7 @@ pub async  fn fisrt(db:ConnectionManager<'_>,id:i32) -> Result<status::Accepted<
 #[delete("/category/<id>")]
 pub async  fn delete(db:ConnectionManager<'_>,id:i32) -> Result<status::NoContent,status::BadRequest<String>>  {
     match  repository::cotegory::delete_category_by_id(db.0,id).await {
-        Ok(x) => Ok(status::NoContent),
+        Ok(_x) => Ok(status::NoContent),
         Err(x) => Err( status::BadRequest(Some(x.to_string())))
     }
 }
@@ -50,3 +50,5 @@ pub async  fn insert(db:ConnectionManager<'_>,task:Json<NewCategory>) -> Result<
         Err(x) => Err( status::BadRequest(Some(x.to_string())))
     }
 }
+
+

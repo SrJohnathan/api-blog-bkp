@@ -22,7 +22,12 @@ pub mod mid;
 
 #[tokio::main]
 async fn main() {
-   // dotenv().unwrap();
+
+    if cfg!(debug_assertions) {
+        dotenv().unwrap();
+    }
+
+   //
     let mut channel: (Sender<String>, Receiver<String>) = mpsc::channel(100);
 
     let db =

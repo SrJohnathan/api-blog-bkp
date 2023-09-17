@@ -8,7 +8,8 @@ use crate::schema::category;
 pub async  fn insert_category(conn: &PgAsyncConnection, new : &NewCategory) -> AsyncResult<Category> {
     diesel::insert_into(category::table)
         .values(new)
-        .get_result_async(conn).await
+        .returning(category::all_columns)
+        .get_result_async::<Category>(conn).await
 }
 pub async  fn get_all_categories(conn: &PgAsyncConnection) -> AsyncResult<Vec<Category>> {
     category::table.load_async::<Category>(conn).await
