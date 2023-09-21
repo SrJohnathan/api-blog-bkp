@@ -17,11 +17,15 @@ pub mod controller;
 pub mod auth;
  pub mod schema;
 
+pub mod s3;
 
 pub mod mid;
 
 #[tokio::main]
 async fn main() {
+
+
+
 
     if cfg!(debug_assertions) {
         dotenv().unwrap();
@@ -45,7 +49,7 @@ async fn main() {
             }),
         )
         .mount(
-            "/rapidoc/",
+            "/",
             make_rapidoc(&RapiDocConfig {
                 general: GeneralConfig {
                     spec_urls: vec![UrlObject::new("General", "../openapi.json")],

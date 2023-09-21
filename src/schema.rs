@@ -23,6 +23,7 @@ diesel::table! {
         id -> Int4,
         #[max_length = 255]
         titulo -> Varchar,
+        img -> Nullable<Text>,
         categoria_id -> Nullable<Int4>,
         total_views -> Nullable<Int4>,
         data_criacao -> Nullable<Timestamp>,

@@ -34,6 +34,14 @@ pub async  fn get_post_by_id(
     post::table.filter(post::id.eq(post_id)).first_async(conn).await
 }
 
+
+pub async  fn get_post_by_category(
+    conn: &PgAsyncConnection,
+    category_id: i32,
+) -> AsyncResult<Vec<Post>> {
+    post::table.filter(post::categoria_id.eq(category_id)).load_async(conn).await
+}
+
 pub async  fn update_post_by_id(
     conn: &PgAsyncConnection,
     post_id: i32,
@@ -43,7 +51,6 @@ pub async  fn update_post_by_id(
         .set(changeset).returning(post::all_columns)
         .get_result_async(conn).await
 }
-
 
 
 pub async  fn increment_total_views(

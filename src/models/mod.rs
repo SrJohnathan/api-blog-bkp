@@ -1,6 +1,7 @@
 pub mod models;
 pub mod new_models;
 
+pub mod aws;
 
 
 

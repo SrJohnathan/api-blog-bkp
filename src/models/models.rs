@@ -22,6 +22,7 @@ pub struct Category {
 pub struct Post {
     pub id: i32,
     pub titulo: String,
+    pub img: Option<String>,
     pub categoria_id: Option<i32>,
     pub total_views: Option<i32>,
     pub data_criacao: Option<NaiveDateTime>,

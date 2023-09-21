@@ -21,6 +21,9 @@ impl<'a> FromRequest<'a> for HttpAuth {
         // Get the token from the http header
         match request.headers().get_one("Authorization") {
             Some(token) => {
+                
+                
+                
                 if token == "Bearer mytoken" {
                     Outcome::Success(HttpAuth(token.to_owned()))
                 } else {

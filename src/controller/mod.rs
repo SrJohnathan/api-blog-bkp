@@ -19,6 +19,7 @@ pub fn routes() -> Vec<Route> {
         post::insert,
         post::delete,
         post::update,
+        post::category,
         post::view
 
 
