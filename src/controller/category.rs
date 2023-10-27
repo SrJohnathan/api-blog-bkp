@@ -22,7 +22,7 @@ pub async  fn all(db:ConnectionManager<'_>) -> Result<status::Accepted<Json<Vec<
 
 /// # Buscar uma categoria por ID
 #[openapi(tag = "Category")]
-#[get("/category/<id>")]
+#[get("/category/first/<id>")]
 pub async  fn fisrt(db:ConnectionManager<'_>,id:i32) -> Result<status::Accepted<Json<Category>>,status::BadRequest<String>>  {
     match  repository::cotegory::get_category_by_id(db.0,id).await {
         Ok(x) => Ok( status::Accepted(Some(Json(x))) ),

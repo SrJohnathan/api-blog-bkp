@@ -2,7 +2,7 @@
 use diesel::{ExpressionMethods, QueryDsl};
 use tokio_diesel::{AsyncResult, AsyncRunQueryDsl};
 use crate::models::models::{GetCategory, Post,};
-use crate::models::new_models::NewPost;
+use crate::models::new_models::{Language, NewPost};
 use crate::models::PgAsyncConnection;
 use crate::schema::post;
 
@@ -44,12 +44,18 @@ pub async fn get_all_posts(
     post::table.load_async(conn).await
 }
 
+pub async fn get_all_posts_lang(
+    conn: &PgAsyncConnection,lang:Language
+) -> AsyncResult<Vec<Post>> {
+    post::table.filter(post::dsl::language.eq(lang)).load_async(conn).await
+}
 
 pub async fn get_last_n_posts(
     conn: &PgAsyncConnection,
     n: i64,
     ord:String,
-    category:String
+    category:String,
+    lang:Language
 ) -> AsyncResult<Vec<Post>> {
     use crate::schema::post::dsl::*;
 
@@ -57,22 +63,22 @@ pub async fn get_last_n_posts(
         "asc" => {
             let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.asc());
               match querry_category {
-                GetCategory::ALL(x) => x.limit(n).load_async(conn).await,
-                GetCategory::ID(x) => x.limit(n).load_async(conn).await
+                GetCategory::ALL(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await,
+                GetCategory::ID(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await
             }
         }
         "desc" =>{
             let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.desc());
             match querry_category {
-                GetCategory::ALL(x) => x.limit(n).load_async(conn).await,
-                GetCategory::ID(x) => x.limit(n).load_async(conn).await
+                GetCategory::ALL(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await,
+                GetCategory::ID(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await
             }
         }
         _ => {
             let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.asc());
             match querry_category {
-                GetCategory::ALL(x) => x.limit(n).load_async(conn).await,
-                GetCategory::ID(x) => x.limit(n).load_async(conn).await
+                GetCategory::ALL(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await,
+                GetCategory::ID(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await
             }
         }
     }

@@ -15,7 +15,9 @@ pub fn routes() -> Vec<Route> {
         category::delete,
 
         post::all,
-        post::fisrt,
+        post::all_lang,
+        post::all_limit,
+        post::first,
         post::insert,
         post::delete,
         post::update,
@@ -25,6 +27,7 @@ pub fn routes() -> Vec<Route> {
 
 ]
 }
+
 
 
 

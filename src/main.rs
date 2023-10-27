@@ -36,7 +36,7 @@ async fn main() {
     let _ = rocket::build()
         .attach(CorsOptions::default().to_cors().unwrap())
         .manage(db)
-        .mount("/", controller::routes())
+        .mount("/",controller::routes())
         .mount(
             "/swagger-ui/",
             make_swagger_ui(&SwaggerUIConfig {
@@ -45,7 +45,7 @@ async fn main() {
             }),
         )
         .mount(
-            "/",
+            "/pt",
             make_rapidoc(&RapiDocConfig {
                 general: GeneralConfig {
                     spec_urls: vec![UrlObject::new("General", "../openapi.json")],

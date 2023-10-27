@@ -6,14 +6,14 @@ use rocket::form::{DataField, FromFormField};
 
 
 
-use rocket::request::{FromRequest, Outcome};
-use rocket_multipart_form_data::{mime, MultipartFormData, MultipartFormDataError, MultipartFormDataField, MultipartFormDataOptions, TextField};
+use rocket::request::{FromParam, FromRequest, Outcome};
+use rocket_multipart_form_data::{ MultipartFormData, MultipartFormDataField, MultipartFormDataOptions};
 
 use rocket_okapi::gen::OpenApiGenerator;
 use rocket_okapi::{okapi,};
 use rocket_okapi::okapi::openapi3::{MediaType, RequestBody};
 
-use rocket_okapi::request::{OpenApiFromData, OpenApiFromRequest, RequestHeaderInput, OpenApiFromFormField};
+use rocket_okapi::request::{OpenApiFromData, OpenApiFromRequest, RequestHeaderInput};
 use schemars::gen::SchemaGenerator;
 use schemars::JsonSchema;
 use schemars::schema::{InstanceType,Schema, SchemaObject,};
@@ -209,3 +209,17 @@ impl JsonSchema for DataFile {
     }
 }
 
+
+impl<'r> FromParam<'r> for Language {
+    type Error = String;
+
+    fn from_param(param: &'r str) -> Result<Self, Self::Error> {
+        match param {
+            "Pt" => Ok(Language::Pt),
+            "En" => Ok(Language::En),
+            "Es" => Ok(Language::Es),
+            "Fr" => Ok(Language::Fr),
+            _ => Err(format!("Invalid language: {}", param)),
+        }
+    }
+}

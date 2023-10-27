@@ -6,9 +6,9 @@ use std::time::Duration;
 
 use rusoto_core::credential::{AwsCredentials, StaticProvider};
 use rusoto_core::request::HttpClient;
-use rusoto_core::{Region, RusotoError};
+use rusoto_core::{Region};
 use rusoto_s3::util::{PreSignedRequest, PreSignedRequestOption};
-use rusoto_s3::{S3, S3Client, GetObjectRequest, ListObjectsV2Request, GetObjectTaggingRequest, PutObjectRequest, Tag, Tagging, PutObjectTaggingRequest, PutObjectTaggingError, PutObjectTaggingOutput, PutObjectOutput, PutObjectError};
+use rusoto_s3::{S3, S3Client, GetObjectRequest, ListObjectsV2Request, GetObjectTaggingRequest, PutObjectRequest, Tag, Tagging, PutObjectTaggingRequest};
 use serde::Serialize;
 
 

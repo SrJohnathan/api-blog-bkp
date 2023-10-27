@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::mid::ConnectionManager;
 use crate::models::models::Post;
-use crate::models::new_models::{FormNewPost, NewPost};
+use crate::models::new_models::{FormNewPost, Language, NewPost};
 use crate::repository;
 use crate::s3::S3FileManager;
 
@@ -21,6 +21,37 @@ pub async fn all(db: ConnectionManager<'_>) -> Result<status::Accepted<Json<Vec<
     }
 }
 
+
+/// # Buscar todas as Posts por Linguagem
+#[openapi(tag = "Post")]
+#[get("/<lang>/post")]
+pub async fn all_lang(db: ConnectionManager<'_>,lang:Language) -> Result<status::Accepted<Json<Vec<Post>>>, status::BadRequest<String>> {
+    match repository::post::get_all_posts_lang(db.0,lang).await {
+        Ok(x) => Ok(status::Accepted(Some(Json(x)))),
+        Err(x) => Err(status::BadRequest(Some(x.to_string())))
+    }
+}
+
+///# Buscar todas as Posts
+///
+///   const limit = 10; // Defina o limite de posts que você deseja buscar
+///
+///   const asc = "asc" | "desc"; // Defina a ordem de busca, se é ascendente ou descendente
+///
+///   const category = "all" | "1"...; // Defina a categoria dos posts que você quer buscar
+///
+///     const response = await axios.get('/post/list/${limit}/${asc}/${category}');
+
+#[openapi(tag = "Post")]
+#[get("/<lang>/post/list/<limit>/<asc>/<category>")]
+pub async fn all_limit(db: ConnectionManager<'_>,limit:i64,asc:String,category:String,lang:Language) -> Result<status::Accepted<Json<Vec<Post>>>, status::BadRequest<String>> {
+    match repository::post::get_last_n_posts(db.0,limit,asc,category,lang).await {
+        Ok(x) => Ok(status::Accepted(Some(Json(x)))),
+        Err(x) => Err(status::BadRequest(Some(x.to_string())))
+    }
+}
+
+
 /// # a chamar ,adiciona uma view no  Post
 #[openapi(tag = "Post")]
 #[get("/post/insert_view/<id>")]
@@ -34,8 +65,8 @@ pub async fn view(db: ConnectionManager<'_>, id: i32) -> Result<status::Accepted
 
 /// # Buscar uma Post por ID
 #[openapi(tag = "Post")]
-#[get("/post/<id>")]
-pub async fn fisrt(db: ConnectionManager<'_>, id: i32) -> Result<status::Accepted<Json<Post>>, status::BadRequest<String>> {
+#[get("/post/first/<id>")]
+pub async fn first(db: ConnectionManager<'_>, id: i32) -> Result<status::Accepted<Json<Post>>, status::BadRequest<String>> {
     match repository::post::get_post_by_id(db.0, id).await {
         Ok(x) => Ok(status::Accepted(Some(Json(x)))),
         Err(x) => Err(status::BadRequest(Some(x.to_string())))
@@ -96,6 +127,8 @@ pub async fn insert(db: ConnectionManager<'_>, data: FormNewPost) -> Result<stat
 #[openapi(tag = "Post")]
 #[put("/post", format = "application/json", data = "<task>")]
 pub async fn update(db: ConnectionManager<'_>, task: Json<Post>) -> Result<status::Created<Json<Post>>, status::BadRequest<String>> {
+
+
     let new_post = NewPost {
         titulo: task.0.titulo,
         img: task.0.img,
