@@ -45,7 +45,7 @@ async fn main() {
             }),
         )
         .mount(
-            "/pt",
+            "/",
             make_rapidoc(&RapiDocConfig {
                 general: GeneralConfig {
                     spec_urls: vec![UrlObject::new("General", "../openapi.json")],
