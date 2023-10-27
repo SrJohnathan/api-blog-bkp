@@ -3,8 +3,7 @@ use rocket_cors::CorsOptions;
 use rocket_okapi::rapidoc::{GeneralConfig, HideShowConfig, make_rapidoc, RapiDocConfig, Theme, UiConfig};
 use rocket_okapi::settings::UrlObject;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
-use tokio::sync::mpsc;
-use tokio::sync::mpsc::{Sender,Receiver};
+
 
 
 
@@ -24,15 +23,12 @@ pub mod mid;
 #[tokio::main]
 async fn main() {
 
-
-
-
     if cfg!(debug_assertions) {
         dotenv().unwrap();
     }
 
    //
-    let mut channel: (Sender<String>, Receiver<String>) = mpsc::channel(100);
+  //  let mut channel: (Sender<String>, Receiver<String>) = mpsc::channel(100);
 
     let db =
         models::connection("DATABASE_URL".to_string()).await.unwrap();

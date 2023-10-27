@@ -51,3 +51,13 @@ dotenvy = "0.15"
 multipart = "*"
 chrono = {version = "0.4.31",features = ["serde"]}
 serde_urlencoded = "0.7"
+
+
+
+[dependencies.uuid]
+version = "1.5.0"
+features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]

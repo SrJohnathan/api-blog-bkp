@@ -1,0 +1,27 @@
+{
+  "app": "WhatsAppSTWpt",
+  "timestamp": 1696943047391,
+  "version": 2,
+  "type": "message",
+  "payload": {
+    "id": "ABEGNRk5KBZpAhCXhJtEaR5zDENfNHdqL3nJ",
+    "source": "351939281669",
+    "type": "quick_reply",
+    "payload": {
+      "text": "SIM",
+      "type": "button"
+    },
+    "sender": {
+      "phone": "351939281669",
+      "name": "Ventura Tamba",
+      "country_code": "351",
+      "dial_code": "939281669"
+    },
+    "context": {
+      "id": "4ded721d-b6ce-4463-8903-83453878663a",
+      "gsId": "2b2a3841-7b3b-4b9e-8990-e003efda4ee6",
+      "forwarded": false,
+      "frequently_forwarded": false
+    }
+  }
+}

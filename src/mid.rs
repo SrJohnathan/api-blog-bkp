@@ -21,7 +21,7 @@ use schemars::schema::{InstanceType,Schema, SchemaObject,};
 
 
 use tokio::io::AsyncReadExt;
-use crate::models::new_models::{DataFile, FormNewPost, TipoPost};
+use crate::models::new_models::{DataFile, FormNewPost, Language, TipoPost};
 use crate::models::PgAsyncConnection;
 
 
@@ -56,7 +56,7 @@ impl<'r> FromFormField<'r> for TipoPost {
             return Err(rocket::form::Errors::from(rocket::form::Error::validation(e.to_string())));
         }
         let tipo = match value.as_str() {
-            "Video" => TipoPost::Fideo,
+            "Video" => TipoPost::Video,
             "Texto" => TipoPost::Texto,
             "Audio" => TipoPost::Audio,
             "Html" => TipoPost::Html,
@@ -79,6 +79,7 @@ impl<'r> FromData<'r> for FormNewPost {
                 MultipartFormDataField::text("categoria_id"),
                 MultipartFormDataField::text("tipo"),
                 MultipartFormDataField::text("conteudo"),
+                MultipartFormDataField::text("language"),
             ],
         );
 
@@ -86,7 +87,8 @@ impl<'r> FromData<'r> for FormNewPost {
         let mut form = FormNewPost {
             titulo: "".to_string(),
             categoria_id: 0,
-            tipo: TipoPost::Fideo,
+            tipo: TipoPost::Texto,
+            language : Language::Pt,
             conteudo: None,
             photo: DataFile(vec![]),
         } ;
@@ -104,6 +106,8 @@ impl<'r> FromData<'r> for FormNewPost {
         let categoria_id = multipart_form.texts.remove("categoria_id");
         let  conteudo = multipart_form.texts.remove("conteudo");
         let  tipo = multipart_form.texts.remove("tipo");
+        let  language = multipart_form.texts.remove("language");
+
 
 
         if let Some( mut   file) = photo {
@@ -126,8 +130,32 @@ impl<'r> FromData<'r> for FormNewPost {
 
         if let Some( mut value) = tipo {
             let v = value.remove(0);
-            form.tipo = TipoPost::Audio
+
+            match v.text.as_str() {
+                "Video" => { form.tipo = TipoPost::Video }
+                "Texto" => { form.tipo = TipoPost::Texto }
+                "Audio" => {form.tipo = TipoPost::Audio }
+                "Html" => { form.tipo = TipoPost::Html }
+                _ => { form.tipo = TipoPost::Texto  }
+            }
+
+
         }
+
+        if let Some( mut value) = language {
+            let v = value.remove(0);
+
+              match  v.text.as_str() {
+                 "Pt" => {  form.language = Language::Pt }
+                  "En" => {  form.language = Language::En }
+                  "Es" => {  form.language = Language::Es }
+                  "Fr" => {  form.language = Language::Fr }
+                  _ => { form.language = Language::Pt  }
+              }
+
+
+        }
+
         rocket::data::Outcome::Success(form)
     }
 }
@@ -162,16 +190,12 @@ impl<'r> OpenApiFromData<'r> for FormNewPost {
 }
 
 
-
-
-
-
 impl JsonSchema for DataFile {
     fn schema_name() -> String {
         "DataFile".to_string()
     }
 
-    fn json_schema(gen: &mut SchemaGenerator) -> Schema {
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         let file_schema = SchemaObject {
             instance_type: Some(InstanceType::String.into()),
             format: Some("binary".to_string()),

@@ -6,19 +6,9 @@ use std::time::Duration;
 
 use rusoto_core::credential::{AwsCredentials, StaticProvider};
 use rusoto_core::request::HttpClient;
-use rusoto_core::Region;
+use rusoto_core::{Region, RusotoError};
 use rusoto_s3::util::{PreSignedRequest, PreSignedRequestOption};
-use rusoto_s3::{
-    S3,
-    S3Client,
-    GetObjectRequest,
-    ListObjectsV2Request,
-    GetObjectTaggingRequest,
-    PutObjectRequest,
-    Tag,
-    Tagging,
-    PutObjectTaggingRequest
-};
+use rusoto_s3::{S3, S3Client, GetObjectRequest, ListObjectsV2Request, GetObjectTaggingRequest, PutObjectRequest, Tag, Tagging, PutObjectTaggingRequest, PutObjectTaggingError, PutObjectTaggingOutput, PutObjectOutput, PutObjectError};
 use serde::Serialize;
 
 
@@ -108,13 +98,13 @@ impl S3FileManager {
     ) -> S3FileManager {
 
         let bucket = bucket_name.unwrap_or(
-            util::get_env_var_value_or_default("RUSTIC_IMAGES_BUCKET_NAME", None)
+            util::get_env_var_value_or_default("BUCKET_NAME", None)
         );
         let key = access_key.unwrap_or(
-            util::get_env_var_value_or_default("RUSTIC_IMAGES_ACCESS_KEY", None)
+            util::get_env_var_value_or_default("AWS_ACCESS_KEY_ID", None)
         );
         let secret = secret_key.unwrap_or(
-            util::get_env_var_value_or_default("RUSTIC_IMAGES_SECRET_KEY", None)
+            util::get_env_var_value_or_default("AWS_SECRET_ACCESS_KEY", None)
         );
         let credentials = S3FileManager::_create_credentials(
             key.clone(),
@@ -123,7 +113,7 @@ impl S3FileManager {
         let credentials_provider = StaticProvider::from(credentials);
 
         let region_name = region_str.unwrap_or(
-            util::get_env_var_value_or_default("RUSTIC_IMAGES_AWS_REGION", None)
+            util::get_env_var_value_or_default("AWS_DEFAULT_REGION", None)
         );
         let resource_region = Region::from_str(&region_name).unwrap_or(Region::UsEast1);
         let s3_client = S3Client::new_with(
@@ -136,7 +126,7 @@ impl S3FileManager {
             access_key: key,
             secret_key: secret,
             bucket_name: bucket,
-            s3_client: s3_client,
+            s3_client,
             region: resource_region,
         }
     }
@@ -195,7 +185,7 @@ impl S3FileManager {
             .tag_set
     }
 
-    pub async fn put_file_in_bucket(&self, file_name: String, file_data: Vec::<u8>) -> String {
+    pub async fn put_file_in_bucket(&self, file_name: String, file_data: Vec::<u8>) -> Result<String, String> {
 
         let put_request = PutObjectRequest {
             bucket: self.bucket_name.clone(),
@@ -204,15 +194,19 @@ impl S3FileManager {
             ..Default::default()
         };
 
-        self.s3_client
+      match  self.s3_client
             .put_object(put_request)
-            .await
-            .expect("Failed to put test object");
+          .await {
+              Ok(x) => {
 
-      self.get_presigned_url_for_file(file_name)
+              Ok(self.get_presigned_url_for_file(file_name))
+
+              }
+              Err(e) => Err(e.to_string())
+      }
     }
 
-    pub async fn put_tags_on_file(&self, file_name: String, tag_names_and_vals: Vec<(String, String)>) {
+    pub async fn put_tags_on_file(&self, file_name: String, tag_names_and_vals: Vec<(String, String)>) -> Result<String, String> {
 
         let mut vec_of_tags = Vec::new();
         for tag in tag_names_and_vals {
@@ -230,15 +224,22 @@ impl S3FileManager {
 
         let put_tagging_request = PutObjectTaggingRequest {
             bucket: self.bucket_name.clone(),
-            key: file_name,
+            key: file_name.clone(),
             tagging: tag_set,
             ..Default::default()
         };
 
-        self.s3_client
+      match    self.s3_client
             .put_object_tagging(put_tagging_request)
-            .await
-            .expect("Unable to put tags on object");
+            .await {
+          Ok(x) => {
+
+              Ok(self.get_presigned_url_for_file(file_name))
+
+          }
+          Err(e) => Err(e.to_string())
+      }
+
     }
 }
 

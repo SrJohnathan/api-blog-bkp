@@ -2,6 +2,10 @@
 
 pub mod sql_types {
     #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "lang"))]
+    pub struct Lang;
+
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "tipo_post"))]
     pub struct TipoPost;
 }
@@ -17,6 +21,7 @@ diesel::table! {
 
 diesel::table! {
     use diesel::sql_types::*;
+    use super::sql_types::Lang;
     use super::sql_types::TipoPost;
 
     post (id) {
@@ -24,6 +29,7 @@ diesel::table! {
         #[max_length = 255]
         titulo -> Varchar,
         img -> Nullable<Text>,
+        language -> Lang,
         categoria_id -> Nullable<Int4>,
         total_views -> Nullable<Int4>,
         data_criacao -> Nullable<Timestamp>,
