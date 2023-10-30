@@ -197,7 +197,7 @@ impl S3FileManager {
       match  self.s3_client
             .put_object(put_request)
           .await {
-              Ok(x) => {
+              Ok(_x) => {
 
               Ok(self.get_presigned_url_for_file(file_name))
 
@@ -232,7 +232,7 @@ impl S3FileManager {
       match    self.s3_client
             .put_object_tagging(put_tagging_request)
             .await {
-          Ok(x) => {
+          Ok(_x) => {
 
               Ok(self.get_presigned_url_for_file(file_name))
 

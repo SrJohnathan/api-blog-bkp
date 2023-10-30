@@ -17,6 +17,7 @@ pub fn routes() -> Vec<Route> {
         post::all,
         post::all_lang,
         post::all_limit,
+        post::all_lang_views,
         post::first,
         post::insert,
         post::delete,

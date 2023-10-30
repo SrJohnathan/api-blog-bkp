@@ -1,8 +1,9 @@
 
 use diesel::{ExpressionMethods, QueryDsl};
+use futures::FutureExt;
 use tokio_diesel::{AsyncResult, AsyncRunQueryDsl};
-use crate::models::models::{GetCategory, Post,};
-use crate::models::new_models::{Language, NewPost};
+use crate::models::models::{Category, GetCategory, Post};
+use crate::models::new_models::{Language, NewPost, PostWithCategory};
 use crate::models::PgAsyncConnection;
 use crate::schema::post;
 
@@ -10,17 +11,17 @@ use crate::schema::post;
 
 
 macro_rules! get_all_category_asc_desc {
-    ($category:expr, $table:expr, $id:expr) => {
+    ($category:expr, $table:expr, $id:expr,$categoria_table:expr) => {
         {
             let category_parsed = $category.parse::<i32>();
             match category_parsed.is_ok() {
                 true => {
                     let category_id = category_parsed.unwrap();
-                    let g = $table.filter(categoria_id.eq(category_id)).order($id);
+                    let g = $table.inner_join($categoria_table).filter(categoria_id.eq(category_id)).order($id);
                     GetCategory::ID(g)
                 }
                 false => {
-                    let g = $table.order($id);
+                    let g = $table.inner_join($categoria_table).order($id);
                     GetCategory::ALL(g)
                 }
             }
@@ -50,39 +51,91 @@ pub async fn get_all_posts_lang(
     post::table.filter(post::dsl::language.eq(lang)).load_async(conn).await
 }
 
+pub async fn get_all_posts_lang_views(
+    conn: &PgAsyncConnection,lang:Language, n: i64
+) -> AsyncResult<Vec<Post>> {
+    post::table.filter(post::dsl::language.eq(lang)) .order(post::dsl::total_views.desc()).limit(n).load_async(conn).await
+}
+
 pub async fn get_last_n_posts(
     conn: &PgAsyncConnection,
     n: i64,
+    offset:i64,
     ord:String,
     category:String,
     lang:Language
-) -> AsyncResult<Vec<Post>> {
+) -> Result<Vec<PostWithCategory>,String> {
     use crate::schema::post::dsl::*;
 
-    match ord.as_str() {
+ let  res =  match ord.as_str() {
         "asc" => {
-            let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.asc());
+            let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table);
               match querry_category {
-                GetCategory::ALL(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await,
-                GetCategory::ID(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await
+                GetCategory::ALL(x) => x.select((
+                    crate::schema::post::all_columns,
+                    crate::schema::category::name
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await,
+                GetCategory::ID(x) => x.select((
+                                                    crate::schema::post::all_columns,
+                    crate::schema::category::name
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await
             }
         }
         "desc" =>{
-            let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.desc());
+            let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.desc(),crate::schema::category::table);
             match querry_category {
-                GetCategory::ALL(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await,
-                GetCategory::ID(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await
+                GetCategory::ALL(x) => x.select((
+                    crate::schema::post::all_columns,
+                    crate::schema::category::name
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await,
+                GetCategory::ID(x) => x.select((
+                    crate::schema::post::all_columns,
+                    crate::schema::category::name
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await
             }
         }
         _ => {
-            let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.asc());
+            let querry_category : GetCategory<_,_> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table);
             match querry_category {
-                GetCategory::ALL(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await,
-                GetCategory::ID(x) => x.filter(language.eq(lang)).limit(n).load_async(conn).await
+                GetCategory::ALL(x) => x.select((
+                    crate::schema::post::all_columns,
+                    crate::schema::category::name
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await,
+                GetCategory::ID(x) => x.select((
+                    crate::schema::post::all_columns,
+                    crate::schema::category::name
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await
             }
         }
-    }
-    
+    };
+
+
+
+   let r =  res.unwrap();
+     let response =   r.iter().map( |  x1| {
+
+       let pos = &x1.0;
+       let category = &x1.1;
+
+        PostWithCategory{
+            id: pos.id,
+            titulo: pos.titulo.clone(),
+            img: pos.img.clone(),
+            language: pos.language.clone(),
+            categoria_id: pos.categoria_id.clone(),
+            total_views: pos.total_views.clone(),
+            data_criacao: pos.data_criacao.clone(),
+            tipo: pos.tipo.clone(),
+            conteudo: pos.conteudo.clone(),
+            name_category: category.clone(),
+        }
+
+    });
+
+
+
+  Ok(  response.collect() )
+
 }
 
 
@@ -123,11 +176,11 @@ pub async fn increment_total_views(
     conn: &PgAsyncConnection,
     post_id: i32,
 ) -> AsyncResult<Post> {
-    match diesel::sql_query(format!(
-        "UPDATE post SET total_views = total_views + 1 WHERE id = {}",
-        post_id
-    ))
-        .execute_async(conn).await {
+
+   match diesel::update(post::table.filter(post::id.eq(post_id)))
+        .set(post::total_views.eq(post::total_views + 1))
+        .execute_async(conn)
+        .await {
         Ok(_x) => Ok(post::table.find(post_id).first_async(conn).await.unwrap()),
         Err(e) => Err(e)
     }

@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::mid::ConnectionManager;
 use crate::models::models::Post;
-use crate::models::new_models::{FormNewPost, Language, NewPost};
+use crate::models::new_models::{FormNewPost, Language, NewPost, PostWithCategory};
 use crate::repository;
 use crate::s3::S3FileManager;
 
@@ -32,20 +32,34 @@ pub async fn all_lang(db: ConnectionManager<'_>,lang:Language) -> Result<status:
     }
 }
 
+
+
+/// # Buscar todas as Posts por Views
+#[openapi(tag = "Post")]
+#[get("/<lang>/post/views/<limit>")]
+pub async fn all_lang_views(db: ConnectionManager<'_>,lang:Language,limit:i64) -> Result<status::Accepted<Json<Vec<Post>>>, status::BadRequest<String>> {
+    match repository::post::get_all_posts_lang_views(db.0,lang,limit).await {
+        Ok(x) => Ok(status::Accepted(Some(Json(x)))),
+        Err(x) => Err(status::BadRequest(Some(x.to_string())))
+    }
+}
+
 ///# Buscar todas as Posts
 ///
-///   const limit = 10; // Defina o limite de posts que você deseja buscar
+///   const init = 0 ...  // Defina o inicio da linha de posts que você deseja buscar
+///
+///   const limit = 10 ... ; // Defina o limite de posts que você deseja buscar
 ///
 ///   const asc = "asc" | "desc"; // Defina a ordem de busca, se é ascendente ou descendente
 ///
-///   const category = "all" | "1"...; // Defina a categoria dos posts que você quer buscar
+///   const category = "all" | "1"...; // Defina a categoria dos posts que você quer buscar ou por ID da categoria
 ///
-///     const response = await axios.get('/post/list/${limit}/${asc}/${category}');
+///     const response = await axios.get('/post/list/${init}/${limit}/${asc}/${category}');
 
 #[openapi(tag = "Post")]
-#[get("/<lang>/post/list/<limit>/<asc>/<category>")]
-pub async fn all_limit(db: ConnectionManager<'_>,limit:i64,asc:String,category:String,lang:Language) -> Result<status::Accepted<Json<Vec<Post>>>, status::BadRequest<String>> {
-    match repository::post::get_last_n_posts(db.0,limit,asc,category,lang).await {
+#[get("/<lang>/post/list/<init>/<limit>/<asc>/<category>")]
+pub async fn all_limit(db: ConnectionManager<'_>,limit:i64,init:i64,asc:String,category:String,lang:Language) -> Result<status::Accepted<Json<Vec<PostWithCategory>>>, status::BadRequest<String>> {
+    match repository::post::get_last_n_posts(db.0,limit,init,asc,category,lang).await {
         Ok(x) => Ok(status::Accepted(Some(Json(x)))),
         Err(x) => Err(status::BadRequest(Some(x.to_string())))
     }

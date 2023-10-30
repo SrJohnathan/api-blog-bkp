@@ -31,6 +31,7 @@ pub struct Post {
     pub conteudo: Option<String>,
 }
 
+
 pub enum GetCategory<T,E>{
     ALL(E),
     ID(T)

@@ -37,16 +37,12 @@ impl<'r> FromRequest<'r> for ConnectionManager<'r> {
         rtn
     }
 }
-
-
 #[rocket::async_trait]
 impl<'r> OpenApiFromRequest<'r> for ConnectionManager<'r> {
     fn from_request_input(_gen: &mut OpenApiGenerator, _name: String, _required: bool) -> rocket_okapi::Result<RequestHeaderInput> {
         Ok(RequestHeaderInput::None)
     }
 }
-
-
 #[rocket::async_trait]
 impl<'r> FromFormField<'r> for TipoPost {
     async fn from_data(field: DataField<'r, '_>) -> rocket::form::Result<'r, Self> {

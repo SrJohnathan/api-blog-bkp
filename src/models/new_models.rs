@@ -1,4 +1,5 @@
-use diesel::{AsChangeset, Insertable};
+use chrono::NaiveDateTime;
+use diesel::{AsChangeset, Insertable, Queryable};
 use diesel_derive_enum::DbEnum;
 
 
@@ -21,7 +22,7 @@ use serde_derive::{Deserialize, Serialize};
 use crate::schema::{category,post};
 
 
-#[derive(Debug,DbEnum,Deserialize, Serialize, JsonSchema)]
+#[derive(Debug,DbEnum,Deserialize, Serialize, JsonSchema,Clone)]
 #[ExistingTypePath = "crate::schema::sql_types::TipoPost"]
 pub enum TipoPost {
     Video,
@@ -30,7 +31,7 @@ pub enum TipoPost {
     Html,
 }
 
-#[derive(Debug,DbEnum,Deserialize, Serialize, JsonSchema)]
+#[derive(Debug,DbEnum,Deserialize, Serialize, JsonSchema,Clone)]
 #[ExistingTypePath = "crate::schema::sql_types::Lang"]
 pub enum Language{
     Pt,
@@ -41,14 +42,14 @@ pub enum Language{
 
 
 #[derive(Insertable, Debug,Deserialize,JsonSchema)]
-#[table_name = "category"]
+#[diesel(table_name = category)]
 pub struct NewCategory {
     pub name: String,
     pub active: bool,
 }
 
 #[derive(Insertable, Debug,Deserialize,AsChangeset)]
-#[table_name = "post"]
+#[diesel(table_name = post)]
 pub struct NewPost {
     pub titulo: String,
     pub language : Language,
@@ -71,6 +72,23 @@ pub struct FormNewPost {
     pub photo: DataFile,
 
 }
+
+#[derive(Queryable, Debug,Serialize,JsonSchema)]
+pub struct PostWithCategory {
+   pub id: i32,
+   pub titulo: String,
+   pub img: Option<String>,
+   pub language: Language,
+   pub categoria_id: Option<i32>,
+   pub total_views: Option<i32>,
+   pub data_criacao: Option<NaiveDateTime>,
+   pub tipo: TipoPost,
+   pub conteudo: Option<String>,
+   pub name_category: String
+
+}
+
+
 
 #[derive(Debug)]
 pub struct DataFile( pub Vec<u8>);
