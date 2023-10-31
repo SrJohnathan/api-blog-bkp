@@ -1,8 +1,8 @@
 
 use diesel::{ExpressionMethods, QueryDsl};
-use futures::FutureExt;
+
 use tokio_diesel::{AsyncResult, AsyncRunQueryDsl};
-use crate::models::models::{Category, GetCategory, Post};
+use crate::models::models::{ GetCategory, Post};
 use crate::models::new_models::{Language, NewPost, PostWithCategory};
 use crate::models::PgAsyncConnection;
 use crate::schema::post;

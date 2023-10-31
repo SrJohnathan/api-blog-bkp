@@ -3,11 +3,11 @@ extern crate rusoto_s3;
 
 use std::str::FromStr;
 use std::time::Duration;
-use chrono::Utc;
+
 
 use rusoto_core::credential::{AwsCredentials, StaticProvider};
 use rusoto_core::request::HttpClient;
-use rusoto_core::{Region, RusotoError};
+use rusoto_core::{Region};
 use rusoto_s3::util::{PreSignedRequest, PreSignedRequestOption};
 use rusoto_s3::{S3, S3Client, GetObjectRequest, ListObjectsV2Request, GetObjectTaggingRequest, PutObjectRequest, Tag, Tagging, PutObjectTaggingRequest, GetObjectError, GetObjectOutput};
 use serde::Serialize;
@@ -151,10 +151,10 @@ impl S3FileManager {
             key: file_name,
             ..Default::default()
         };
-        let expiration_time = Duration::from_secs(31536000);
+       // let expiration_time = Duration::from_secs(31536000);
         let options = PreSignedRequestOption {
-          //  expires_in: Duration::from_secs(60 * 30),
-            expires_in: expiration_time,
+            expires_in: Duration::from_secs(60 * 30),
+          //  expires_in: expiration_time,
         };
         get_obj_req.get_presigned_url(
             &self.region,
@@ -174,7 +174,7 @@ impl S3FileManager {
         };
 
        match     s3_client.get_object(get_obj_req).await {
-           Ok(x) => {
+           Ok(_x) => {
                let url = format!("https://{}.s3.amazonaws.com/{}",self.bucket_name.clone(), file_name);
                Ok(url)
 
@@ -230,11 +230,36 @@ impl S3FileManager {
           .await {
               Ok(_x) => {
 
-              Ok(self.get_presigned_url_for_file(file_name))
+                  let url = format!("https://{}.s3.amazonaws.com/{}",self.bucket_name.clone(), file_name);
+                  Ok(url)
+
 
               }
               Err(e) => Err(e.to_string())
       }
+    }
+
+
+    pub async fn put_file_in_bucket_public(&self, file_name: String, file_data: Vec::<u8>) -> Result<String, String> {
+
+        let put_request = PutObjectRequest {
+            bucket: self.bucket_name.clone(),
+            key: file_name.clone(),
+            body: Some(file_data.into()),
+            acl: Some("public-read".to_string()),
+            ..Default::default()
+        };
+
+        match  self.s3_client
+            .put_object(put_request)
+            .await {
+            Ok(_x) => {
+
+                Ok(self.get_url_for_file(file_name).await.unwrap())
+
+            }
+            Err(e) => Err(e.to_string())
+        }
     }
 
     pub async fn put_tags_on_file(&self, file_name: String, tag_names_and_vals: Vec<(String, String)>) -> Result<String, String> {

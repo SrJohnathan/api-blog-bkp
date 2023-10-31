@@ -117,7 +117,7 @@ pub async fn insert(db: ConnectionManager<'_>, data: FormNewPost) -> Result<stat
 
     let id = Uuid::new_v4();
 
-    match filemanager.put_file_in_bucket(format!("{}.png", id.to_string()), data.photo.0).await {
+    match filemanager.put_file_in_bucket_public(format!("{}.png", id.to_string()), data.photo.0).await {
         Ok(x) => {
             let new_post = NewPost {
                 categoria_id: data.categoria_id,
