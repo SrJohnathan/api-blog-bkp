@@ -3,12 +3,13 @@ extern crate rusoto_s3;
 
 use std::str::FromStr;
 use std::time::Duration;
+use chrono::Utc;
 
 use rusoto_core::credential::{AwsCredentials, StaticProvider};
 use rusoto_core::request::HttpClient;
-use rusoto_core::{Region};
+use rusoto_core::{Region, RusotoError};
 use rusoto_s3::util::{PreSignedRequest, PreSignedRequestOption};
-use rusoto_s3::{S3, S3Client, GetObjectRequest, ListObjectsV2Request, GetObjectTaggingRequest, PutObjectRequest, Tag, Tagging, PutObjectTaggingRequest};
+use rusoto_s3::{S3, S3Client, GetObjectRequest, ListObjectsV2Request, GetObjectTaggingRequest, PutObjectRequest, Tag, Tagging, PutObjectTaggingRequest, GetObjectError, GetObjectOutput};
 use serde::Serialize;
 
 
@@ -150,8 +151,10 @@ impl S3FileManager {
             key: file_name,
             ..Default::default()
         };
+        let expiration_time = Duration::from_secs(31536000);
         let options = PreSignedRequestOption {
-            expires_in: Duration::from_secs(60 * 30),
+          //  expires_in: Duration::from_secs(60 * 30),
+            expires_in: expiration_time,
         };
         get_obj_req.get_presigned_url(
             &self.region,
@@ -159,6 +162,33 @@ impl S3FileManager {
             &options
         )
     }
+
+    pub async fn get_url_for_file(&self, file_name: String) -> Result<String, String> {
+
+        let s3_client = S3Client::new(self.region.clone());
+
+        let get_obj_req = GetObjectRequest {
+            bucket: self.bucket_name.clone(),
+            key: file_name.clone(),
+            ..Default::default()
+        };
+
+       match     s3_client.get_object(get_obj_req).await {
+           Ok(x) => {
+               let url = format!("https://{}.s3.amazonaws.com/{}",self.bucket_name.clone(), file_name);
+               Ok(url)
+
+           }
+           Err(x) => Err(x.to_string())
+       }
+
+
+
+
+
+
+    }
+
 
     pub async fn get_bucket_contents(&self) -> Option<Vec<rusoto_s3::Object>> {
         let list_objs_req = ListObjectsV2Request {
@@ -191,6 +221,7 @@ impl S3FileManager {
             bucket: self.bucket_name.clone(),
             key: file_name.clone(),
             body: Some(file_data.into()),
+
             ..Default::default()
         };
 
