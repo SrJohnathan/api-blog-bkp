@@ -30,8 +30,7 @@ async fn main() {
    //
   //  let mut channel: (Sender<String>, Receiver<String>) = mpsc::channel(100);
 
-    let db =
-        models::connection("DATABASE_URL".to_string()).await.unwrap();
+    let db = models::connection("DATABASE_URL".to_string()).await.unwrap();
 
     let _ = rocket::build()
         .attach(CorsOptions::default().to_cors().unwrap())

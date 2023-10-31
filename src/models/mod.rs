@@ -7,7 +7,7 @@ pub mod aws;
 
 use std::ops::Deref;
 use diesel::PgConnection;
-use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
+use diesel::r2d2::{ConnectionManager, Error, Pool, PooledConnection};
 
 pub type  PgAsyncConnection =  Pool<ConnectionManager<PgConnection>>;
 pub struct   PoolPgAsyncConnection( pub PooledConnection<ConnectionManager<PgConnection>>);
@@ -25,7 +25,10 @@ pub async  fn connection(str: String) -> Result<PgAsyncConnection,String> {
     let db_url = std::env::var(str).unwrap();
     println!("{}",db_url);
     let manager = ConnectionManager::<PgConnection>::new(db_url);
-    let pool = Pool::builder().build(manager).unwrap();
+    match   Pool::builder().build(manager) {
+        Ok(x) =>  Ok(x),
+        Err(x) => Err(x.to_string())
+    }
     // embed_migrations!();
-    Ok(pool)
+
 }
