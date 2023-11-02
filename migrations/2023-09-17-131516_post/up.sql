@@ -1,6 +1,6 @@
 -- Your SQL goes here
-CREATE TYPE  tipo_post AS ENUM ('video', 'texto', 'audio', 'html');
-CREATE TYPE  lang AS ENUM ('pt', 'en', 'es', 'fr');
+CREATE TYPE     tipo_post AS ENUM ('video', 'texto', 'audio', 'html');
+CREATE TYPE     lang AS ENUM ('pt', 'en', 'es', 'fr');
 CREATE TABLE IF NOT EXISTS post (
                       id SERIAL PRIMARY KEY,
                       titulo VARCHAR(255) NOT NULL,

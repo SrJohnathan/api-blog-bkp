@@ -9,7 +9,7 @@ use rusoto_core::credential::{AwsCredentials, StaticProvider};
 use rusoto_core::request::HttpClient;
 use rusoto_core::{Region};
 use rusoto_s3::util::{PreSignedRequest, PreSignedRequestOption};
-use rusoto_s3::{S3, S3Client, GetObjectRequest, ListObjectsV2Request, GetObjectTaggingRequest, PutObjectRequest, Tag, Tagging, PutObjectTaggingRequest, GetObjectError, GetObjectOutput};
+use rusoto_s3::{S3, S3Client, GetObjectRequest, ListObjectsV2Request, GetObjectTaggingRequest, PutObjectRequest, Tag, Tagging, PutObjectTaggingRequest, DeleteObjectRequest};
 use serde::Serialize;
 
 
@@ -295,6 +295,22 @@ impl S3FileManager {
           }
           Err(e) => Err(e.to_string())
       }
+
+    }
+
+
+    pub  async fn delete(&self, file_name: String) -> Result<(), String> {
+
+        let delete_request = DeleteObjectRequest {
+            bucket: self.bucket_name.clone(),
+            key: file_name,
+            ..Default::default()
+        };
+
+        match self.s3_client.delete_object(delete_request).await {
+            Ok(_x) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
 
     }
 }

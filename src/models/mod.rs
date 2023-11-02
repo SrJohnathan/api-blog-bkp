@@ -7,7 +7,7 @@ pub mod aws;
 
 use std::ops::Deref;
 use diesel::PgConnection;
-use diesel::r2d2::{ConnectionManager, Error, Pool, PooledConnection};
+use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 
 pub type  PgAsyncConnection =  Pool<ConnectionManager<PgConnection>>;
 pub struct   PoolPgAsyncConnection( pub PooledConnection<ConnectionManager<PgConnection>>);

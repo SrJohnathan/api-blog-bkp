@@ -3,11 +3,13 @@ use rocket::{Data, Request, State};
 use rocket::data::{FromData, ToByteUnit};
 
 use rocket::form::{DataField, FromFormField};
-
+use rocket::http::{ContentType, Status};
 
 
 use rocket::request::{FromParam, FromRequest, Outcome};
+use rocket::response::status;
 use rocket_multipart_form_data::{ MultipartFormData, MultipartFormDataField, MultipartFormDataOptions};
+use rocket_multipart_form_data::mime::Mime;
 
 use rocket_okapi::gen::OpenApiGenerator;
 use rocket_okapi::{okapi,};
@@ -59,6 +61,46 @@ impl<'r> FromFormField<'r> for TipoPost {
             _ => return Err(rocket::form::Errors::from(rocket::form::Error::validation("Valor de TipoPost inválido"))),
         };
         Ok(tipo)
+    }
+}
+
+#[derive(Debug ,JsonSchema)]
+pub struct FormFile {
+    #[schemars(skip)]
+   pub file_name:Option<String>,
+    #[serde(rename = "media")]
+   pub data:DataFile,
+    #[schemars(skip)]
+   pub content_type:String
+
+}
+
+#[rocket::async_trait]
+impl<'r> FromData<'r> for FormFile {
+    type Error = &'r str;
+
+    async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> rocket::data::Outcome<'r, Self> {
+        let options = MultipartFormDataOptions::with_multipart_form_data_fields(vec![
+            MultipartFormDataField::raw("media").size_limit(10_000_000),
+        ]);
+
+        let mut multipart_form_data = match MultipartFormData::parse(&req.content_type().unwrap(), data, options).await {
+            Ok(r) => r,
+            Err(e) => {
+                println!("{:?}",e.to_string());
+                return  rocket::data::Outcome::Failure((Status::InternalServerError, "Erro interno no servidor"   ))
+            }
+        };
+        match multipart_form_data.raw.remove("media") {
+            Some(mut media) => {
+                let file = media.remove(0);
+
+                rocket::data::Outcome::Success(FormFile{file_name: file.file_name , data : DataFile( file.raw  ),content_type: file.content_type.unwrap().to_string() })
+
+            }
+            None =>  rocket::data::Outcome::Failure((Status::InternalServerError, "Erro interno no servidor"))
+
+        }
     }
 }
 
@@ -156,6 +198,9 @@ impl<'r> FromData<'r> for FormNewPost {
     }
 }
 
+
+
+
 #[rocket::async_trait]
 impl<'v> FromFormField<'v> for DataFile {
     async fn from_data(field: DataField<'v, '_>) -> rocket::form::Result<'v, Self> {
@@ -186,11 +231,26 @@ impl<'r> OpenApiFromData<'r> for FormNewPost {
 }
 
 
+#[rocket::async_trait]
+impl<'r> OpenApiFromData<'r> for FormFile {
+    fn request_body(gen: &mut OpenApiGenerator) -> rocket_okapi::Result<RequestBody> {
+        let mut ty = MediaType::default();
+        ty.schema = Some( gen.json_schema::<FormFile>());
+        let mut m = okapi::Map::<String, MediaType>::new();
+        m.insert("multipart/form-data".to_string(),ty);
+        Ok(RequestBody {
+            description: None,
+            required: true,
+            content: m,
+            ..Default::default()
+        })
+    }
+}
+
 impl JsonSchema for DataFile {
     fn schema_name() -> String {
         "DataFile".to_string()
     }
-
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
         let file_schema = SchemaObject {
             instance_type: Some(InstanceType::String.into()),
@@ -204,6 +264,10 @@ impl JsonSchema for DataFile {
 
     }
 }
+
+
+
+
 
 
 impl<'r> FromParam<'r> for Language {

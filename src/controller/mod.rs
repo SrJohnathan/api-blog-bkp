@@ -4,8 +4,8 @@ use rocket_okapi::openapi_get_routes;
 
 mod category;
 mod post;
-
-
+mod ads;
+mod files;
 pub fn routes() -> Vec<Route> {
     openapi_get_routes![
     crate::auth::http_auth,
@@ -23,8 +23,16 @@ pub fn routes() -> Vec<Route> {
         post::delete,
         post::update,
         post::category,
-        post::view
+        post::view,
 
+        files::upload,
+        files::all,
+        files::delete,
+
+         ads::all,
+        ads::fisrt,
+        ads::insert,
+        ads::delete,
 
 ]
 }

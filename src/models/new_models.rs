@@ -19,7 +19,7 @@ use schemars::{JsonSchema};
 use serde_derive::{Deserialize, Serialize};
 
 
-use crate::schema::{category,post};
+use crate::schema::{category,post,ads,files};
 
 
 #[derive(Debug,DbEnum,Deserialize, Serialize, JsonSchema,Clone)]
@@ -35,7 +35,9 @@ pub enum TipoPost {
 #[ExistingTypePath = "crate::schema::sql_types::Lang"]
 pub enum Language{
     Pt,
- En, Es, Fr
+    En,
+    Es,
+    Fr
 }
 
 
@@ -87,6 +89,27 @@ pub struct PostWithCategory {
    pub name_category: String
 
 }
+
+
+
+#[derive(Insertable, Debug,Deserialize,JsonSchema)]
+#[diesel(table_name = ads)]
+pub struct NewAds {
+    pub description: String,
+    pub images: Option<Vec<i32>>,
+    pub time: Option<i32>,
+    pub url: Option<Vec<String>>,
+    pub active: bool,
+    pub alt: Option<serde_json::Value>,
+}
+
+#[derive(Insertable, Debug,Deserialize)]
+#[diesel(table_name = files)]
+pub struct NewFiles {
+    pub name: String,
+
+}
+
 
 
 
