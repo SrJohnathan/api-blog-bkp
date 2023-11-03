@@ -46,7 +46,7 @@ pub async fn delete(db: ConnectionManager<'_>, id: i32) -> Result<status::NoCont
 #[post("/files/upload-media",format = "multipart/form-data", data = "<data>")]
 pub async fn upload(db: ConnectionManager<'_>, data: FormFile,
 ) -> Result<Created<Json<Files>>, BadRequest<String>> {
-    let mut fi = NewFiles { name: data.file_name.unwrap() };
+    let  fi = NewFiles { name: data.file_name.unwrap() };
     let filemanager = S3FileManager::new(None, None, None, None);
 
     match filemanager.put_file_in_bucket_public(fi.name.clone(), data.data.0).await {

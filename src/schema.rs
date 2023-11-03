@@ -49,6 +49,8 @@ diesel::table! {
         id -> Int4,
         #[max_length = 255]
         titulo -> Varchar,
+        #[max_length = 255]
+        descripton -> Varchar,
         img -> Nullable<Text>,
         language -> Lang,
         categoria_id -> Nullable<Int4>,

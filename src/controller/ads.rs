@@ -1,10 +1,11 @@
 use rocket::{delete, get, post};
 use rocket::response::status;
+use rocket::response::status::{Accepted, BadRequest};
 use rocket::serde::json::Json;
 use rocket_okapi::openapi;
 use crate::mid::ConnectionManager;
 use crate::models::models::Ads;
-use crate::models::new_models::NewAds;
+use crate::models::new_models::{NewAds, ResAds};
 use crate::repository;
 
 /// # Buscar todas as categorias
@@ -21,8 +22,10 @@ pub async  fn all(db:ConnectionManager<'_>) -> Result<status::Accepted<Json<Vec<
 /// # Buscar uma categoria por ID
 #[openapi(tag = "Ads")]
 #[get("/ads/first/<id>")]
-pub async  fn fisrt(db:ConnectionManager<'_>,id:i32) -> Result<status::Accepted<Json<Ads>>,status::BadRequest<String>>  {
+pub async  fn fisrt(db:ConnectionManager<'_>, id:i32) -> Result<Accepted<Json<ResAds>>, BadRequest<String>> {
     match  repository::ads::get_ads_by_id(db.0,id).await {
+
+
         Ok(x) => Ok( status::Accepted(Some(Json(x))) ),
         Err(x) => Err( status::BadRequest(Some(x.to_string())))
     }

@@ -61,12 +61,21 @@ pub struct NewPost {
     pub conteudo: Option<String>,
 }
 
-
+#[derive(Debug,Deserialize,JsonSchema)]
+pub struct NewPostIsert {
+    pub titulo: String,
+    pub language : Language,
+    pub categoria_id: i32,
+    pub img: Option<String>,
+    pub tipo: TipoPost,
+    pub conteudo: Option<String>,
+}
 
 
 #[derive(Debug,JsonSchema)]
 pub struct FormNewPost {
     pub titulo:String,
+    pub description: String,
     pub language : Language,
     pub categoria_id: i32,
     pub tipo: TipoPost,
@@ -99,6 +108,17 @@ pub struct NewAds {
     pub images: Option<Vec<i32>>,
     pub time: Option<i32>,
     pub url: Option<Vec<String>>,
+    pub active: bool,
+    pub alt: Option<serde_json::Value>,
+}
+
+#[derive( Debug,Deserialize,Serialize,JsonSchema)]
+pub struct ResAds {
+    pub id: i32,
+    pub description: String,
+    pub images: Vec<String>,
+    pub time: Option<i32>,
+    pub url: Vec<String>,
     pub active: bool,
     pub alt: Option<serde_json::Value>,
 }

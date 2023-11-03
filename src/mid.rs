@@ -3,13 +3,11 @@ use rocket::{Data, Request, State};
 use rocket::data::{FromData, ToByteUnit};
 
 use rocket::form::{DataField, FromFormField};
-use rocket::http::{ContentType, Status};
+use rocket::http::{ Status};
 
 
 use rocket::request::{FromParam, FromRequest, Outcome};
-use rocket::response::status;
 use rocket_multipart_form_data::{ MultipartFormData, MultipartFormDataField, MultipartFormDataOptions};
-use rocket_multipart_form_data::mime::Mime;
 
 use rocket_okapi::gen::OpenApiGenerator;
 use rocket_okapi::{okapi,};
@@ -25,7 +23,6 @@ use schemars::schema::{InstanceType,Schema, SchemaObject,};
 use tokio::io::AsyncReadExt;
 use crate::models::new_models::{DataFile, FormNewPost, Language, TipoPost};
 use crate::models::PgAsyncConnection;
-
 
 
 pub struct ConnectionManager<'r>(pub &'r PgAsyncConnection);
@@ -114,6 +111,7 @@ impl<'r> FromData<'r> for FormNewPost {
             vec![
                 MultipartFormDataField::raw("photo").size_limit(10_000_000),
                 MultipartFormDataField::text("titulo"),
+                MultipartFormDataField::text("description"),
                 MultipartFormDataField::text("categoria_id"),
                 MultipartFormDataField::text("tipo"),
                 MultipartFormDataField::text("conteudo"),
@@ -124,6 +122,7 @@ impl<'r> FromData<'r> for FormNewPost {
 
         let mut form = FormNewPost {
             titulo: "".to_string(),
+            description: "".to_string(),
             categoria_id: 0,
             tipo: TipoPost::Texto,
             language : Language::Pt,
@@ -141,6 +140,7 @@ impl<'r> FromData<'r> for FormNewPost {
 
         let photo = multipart_form.raw.remove("photo");
         let title = multipart_form.texts.remove("titulo");
+        let description = multipart_form.texts.remove("description");
         let categoria_id = multipart_form.texts.remove("categoria_id");
         let  conteudo = multipart_form.texts.remove("conteudo");
         let  tipo = multipart_form.texts.remove("tipo");
@@ -156,6 +156,12 @@ impl<'r> FromData<'r> for FormNewPost {
             let v = value.remove(0);
             form.titulo = v.text
         }
+
+        if let Some( mut value) = description {
+            let v = value.remove(0);
+            form.description = v.text
+        }
+
         if let Some( mut value) = categoria_id {
             let v = value.remove(0);
             form.categoria_id = v.text.parse().unwrap()

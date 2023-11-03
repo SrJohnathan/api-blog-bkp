@@ -2,13 +2,13 @@ use rocket::{delete, get, post, put};
 use rocket::response::status;
 use rocket::serde::json::Json;
 use rocket_okapi::openapi;
-use uuid::Uuid;
+
 
 use crate::mid::ConnectionManager;
 use crate::models::models::Post;
-use crate::models::new_models::{FormNewPost, Language, NewPost, PostWithCategory};
+use crate::models::new_models::{Language, NewPost, NewPostIsert, PostWithCategory};
 use crate::repository;
-use crate::s3::S3FileManager;
+
 
 
 /// # Buscar todas as Posts
@@ -110,12 +110,12 @@ pub async fn delete(db: ConnectionManager<'_>, id: i32) -> Result<status::NoCont
 
 
 /// # Insere uma nova Post
-#[openapi(tag = "Post")]
+/*#[openapi(tag = "Post")]
 #[post("/post", format = "multipart/form-data", data = "<data>")]
 pub async fn insert(db: ConnectionManager<'_>, data: FormNewPost) -> Result<status::Created<Json<Post>>, status::BadRequest<String>> {
     let filemanager = S3FileManager::new(None, None, None, None);
 
-    let id = Uuid::new_v4();
+    //let id = Uuid::new_v4();
 
     match filemanager.put_file_in_bucket_public(format!("{}.png", id.to_string()), data.photo.0).await {
         Ok(x) => {
@@ -135,7 +135,30 @@ pub async fn insert(db: ConnectionManager<'_>, data: FormNewPost) -> Result<stat
         }
         Err(x) => Err(status::BadRequest(Some(x.to_string())))
     }
+}*/
+
+/// # Insere uma nova Post
+#[openapi(tag = "Post")]
+#[post("/post", format = "application/json", data = "<data>")]
+pub async fn insert_no_file(db: ConnectionManager<'_>, data: Json<NewPostIsert>) -> Result<status::Created<Json<Post>>, status::BadRequest<String>> {
+    //let id = Uuid::new_v4();
+
+    let new_post = NewPost {
+        categoria_id: data.categoria_id,
+        conteudo: data.conteudo.clone(),
+        tipo: data.tipo.clone(),
+        language:data.language.clone(),
+        titulo: data.titulo.clone(),
+        img: data.img.clone(),
+    };
+
+    match repository::post::insert_post(db.0, &new_post).await {
+        Ok(x) => Ok(status::Created::new("".to_string()).body(Json(x))),
+        Err(x) => Err(status::BadRequest(Some(x.to_string())))
+    }
+
 }
+
 
 /// # Atualiza uma nova Post
 #[openapi(tag = "Post")]

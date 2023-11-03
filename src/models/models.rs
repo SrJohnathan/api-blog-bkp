@@ -20,9 +20,11 @@ pub struct Category {
 }
 
 #[derive(Queryable, Debug, Serialize, Deserialize, JsonSchema)]
+#[diesel(table_name = post)]
 pub struct Post {
     pub id: i32,
     pub titulo: String,
+    pub description: String,
     pub img: Option<String>,
     pub language: Language,
     pub categoria_id: Option<i32>,
@@ -31,6 +33,9 @@ pub struct Post {
     pub tipo: TipoPost,
     pub conteudo: Option<String>,
 }
+
+
+
 
 #[derive(Queryable, Debug, Serialize, Deserialize, JsonSchema)]
 #[diesel(table_name = ads)]
