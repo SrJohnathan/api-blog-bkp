@@ -57,7 +57,7 @@ pub async fn all_lang_views(db: ConnectionManager<'_>,lang:Language,limit:i64) -
 ///     const response = await axios.get('/post/list/${init}/${limit}/${asc}/${category}');
 
 #[openapi(tag = "Post")]
-#[get("/<lang>/post/list/<init>/<limit>/<asc>/<category>")]
+#[get("/post/<lang>/list/<init>/<limit>/<asc>/<category>")]
 pub async fn all_limit(db: ConnectionManager<'_>,limit:i64,init:i64,asc:String,category:String,lang:Language) -> Result<status::Accepted<Json<Vec<PostWithCategory>>>, status::BadRequest<String>> {
     match repository::post::get_last_n_posts(db.0,limit,init,asc,category,lang).await {
         Ok(x) => Ok(status::Accepted(Some(Json(x)))),

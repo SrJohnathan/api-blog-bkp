@@ -105,6 +105,7 @@ pub struct PostWithCategory {
    pub titulo: String,
    pub img: Option<String>,
    pub language: Language,
+   pub description: String,
    pub categoria_id: Option<i32>,
    pub total_views: Option<i32>,
    pub data_criacao: Option<NaiveDateTime>,

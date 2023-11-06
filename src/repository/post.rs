@@ -118,6 +118,7 @@ pub async fn get_last_n_posts(
        let category = &x1.1;
 
         PostWithCategory{
+            description: pos.description.clone(),
             id: pos.id,
             titulo: pos.titulo.clone(),
             img: pos.img.clone(),
