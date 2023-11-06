@@ -20,6 +20,9 @@ pub async  fn delete_category_by_id(conn: &PgAsyncConnection, category_id: i32) 
         .execute_async(conn).await
 }
 
+pub async  fn get_category_by_name(conn: &PgAsyncConnection, str: String) -> AsyncResult<Category> {
+    category::table.filter(category::name_url.eq(str)).first_async(conn).await
+}
 pub async  fn get_category_by_id(conn: &PgAsyncConnection, category_id: i32) -> AsyncResult<Category> {
     category::table.filter(category::id.eq(category_id)).first_async(conn).await
 

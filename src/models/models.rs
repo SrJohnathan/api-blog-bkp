@@ -15,9 +15,22 @@ use crate::models::new_models::{Language, TipoPost};
 #[derive(Queryable, Debug, Serialize, JsonSchema)]
 pub struct Category {
     pub id: i32,
-    pub name: String,
+    pub name_url: String,
+    pub name_pt: String,
+    pub name_en: String,
+    pub name_es: String,
+    pub name_fr: String,
     pub active: bool,
 }
+
+#[derive(Queryable, Debug, Serialize, JsonSchema)]
+pub struct Settings {
+    pub id: i32,
+    pub name: String,
+    pub data: Option<serde_json::Value>,
+   
+}
+
 
 #[derive(Queryable, Debug, Serialize, Deserialize, JsonSchema)]
 #[diesel(table_name = post)]

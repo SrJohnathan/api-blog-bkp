@@ -2,7 +2,7 @@
 use diesel::{ExpressionMethods, QueryDsl};
 
 use tokio_diesel::{AsyncResult, AsyncRunQueryDsl};
-use crate::models::models::{ GetCategory, Post};
+use crate::models::models::{Category, GetCategory, Post};
 use crate::models::new_models::{Language, NewPost, PostWithCategory};
 use crate::models::PgAsyncConnection;
 use crate::schema::post;
@@ -73,12 +73,12 @@ pub async fn get_last_n_posts(
               match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
-                    crate::schema::category::name
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await,
+                    crate::schema::category::all_columns
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                                                     crate::schema::post::all_columns,
-                    crate::schema::category::name
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await
+                                                    crate::schema::category::all_columns
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
             }
         }
         "desc" =>{
@@ -86,12 +86,12 @@ pub async fn get_last_n_posts(
             match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
-                    crate::schema::category::name
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await,
+                    crate::schema::category::all_columns
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                     crate::schema::post::all_columns,
-                    crate::schema::category::name
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await
+                    crate::schema::category::all_columns
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
             }
         }
         _ => {
@@ -99,12 +99,12 @@ pub async fn get_last_n_posts(
             match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
-                    crate::schema::category::name
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await,
+                    crate::schema::category::all_columns
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                     crate::schema::post::all_columns,
-                    crate::schema::category::name
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,String)>(conn).await
+                    crate::schema::category::all_columns
+                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
             }
         }
     };
@@ -127,7 +127,7 @@ pub async fn get_last_n_posts(
             data_criacao: pos.data_criacao.clone(),
             tipo: pos.tipo.clone(),
             conteudo: pos.conteudo.clone(),
-            name_category: category.clone(),
+            name_category: category.name_url.clone(),
         }
 
     });

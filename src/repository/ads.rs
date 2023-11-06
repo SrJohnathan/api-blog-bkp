@@ -35,8 +35,6 @@ pub async fn get_ads_by_id(conn: &PgAsyncConnection, ads_id: i32) -> Result<ResA
             let mut iter = n.clone().into_iter();
             while let Some(x2) = iter.next() {
                 let i = x2.unwrap();
-                println!("{}",i);
-
                 let str = match crate::repository::files::get(conn, i).await {
                     Ok(x) => { x.name }
                     Err(_e) => { "".to_string() }

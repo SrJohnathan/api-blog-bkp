@@ -26,8 +26,16 @@ diesel::table! {
 diesel::table! {
     category (id) {
         id -> Int4,
+        #[max_length = 30]
+        name_url -> Varchar,
         #[max_length = 255]
-        name -> Varchar,
+        name_pt -> Varchar,
+        #[max_length = 255]
+        name_en -> Varchar,
+        #[max_length = 255]
+        name_es -> Varchar,
+        #[max_length = 255]
+        name_fr -> Varchar,
         active -> Bool,
     }
 }
@@ -61,6 +69,15 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    settings (id) {
+        id -> Int4,
+        #[max_length = 255]
+        name -> Varchar,
+        data -> Nullable<Jsonb>,
+    }
+}
+
 diesel::joinable!(post -> category (categoria_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
@@ -68,4 +85,5 @@ diesel::allow_tables_to_appear_in_same_query!(
     category,
     files,
     post,
+    settings,
 );

@@ -30,6 +30,17 @@ pub async  fn fisrt(db:ConnectionManager<'_>,id:i32) -> Result<status::Accepted<
     }
 }
 
+/// # Buscar uma categoria por ID
+#[openapi(tag = "Category")]
+#[get("/category/name/<name_url>")]
+pub async  fn fisrt_name(db:ConnectionManager<'_>,name_url:String) -> Result<status::Accepted<Json<Category>>,status::BadRequest<String>>  {
+    match  repository::cotegory::get_category_by_name(db.0,name_url).await {
+        Ok(x) => Ok( status::Accepted(Some(Json(x))) ),
+        Err(x) => Err( status::BadRequest(Some(x.to_string())))
+    }
+}
+
+
 /// # Deletar uma categoria por ID
 #[openapi(tag = "Category")]
 #[delete("/category/<id>")]

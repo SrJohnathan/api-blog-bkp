@@ -19,7 +19,7 @@ use schemars::{JsonSchema};
 use serde_derive::{Deserialize, Serialize};
 
 
-use crate::schema::{category,post,ads,files};
+use crate::schema::{category,post,ads,files,settings};
 
 
 #[derive(Debug,DbEnum,Deserialize, Serialize, JsonSchema,Clone)]
@@ -46,14 +46,28 @@ pub enum Language{
 #[derive(Insertable, Debug,Deserialize,JsonSchema)]
 #[diesel(table_name = category)]
 pub struct NewCategory {
-    pub name: String,
+    pub name_pt: String,
+    pub name_en: String,
+    pub name_es: String,
+    pub name_fr: String,
     pub active: bool,
 }
+
+
+#[derive(Insertable, Debug,Deserialize,JsonSchema)]
+#[diesel(table_name = settings)]
+pub struct NewSettings {
+    pub name: String,
+    pub data: Option<serde_json::Value>,
+
+}
+
 
 #[derive(Insertable, Debug,Deserialize,AsChangeset)]
 #[diesel(table_name = post)]
 pub struct NewPost {
     pub titulo: String,
+    pub descripton: String,
     pub language : Language,
     pub categoria_id: i32,
     pub img: Option<String>,
@@ -64,6 +78,7 @@ pub struct NewPost {
 #[derive(Debug,Deserialize,JsonSchema)]
 pub struct NewPostIsert {
     pub titulo: String,
+    pub description: String,
     pub language : Language,
     pub categoria_id: i32,
     pub img: Option<String>,

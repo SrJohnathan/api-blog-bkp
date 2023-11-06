@@ -6,11 +6,14 @@ pub mod category;
 pub mod post;
 pub mod ads;
 pub mod files;
+
+pub mod settings;
 pub fn routes() -> Vec<Route> {
     openapi_get_routes![
     crate::auth::http_auth,
         category::all,
         category::fisrt,
+        category::fisrt_name,
         category::insert,
         category::delete,
 
@@ -33,6 +36,12 @@ pub fn routes() -> Vec<Route> {
         ads::fisrt,
         ads::insert,
         ads::delete,
+
+        settings::all,
+        settings::fisrt,
+        settings::fisrt_name,
+        settings::insert,
+        settings::delete,
 
 ]
 }

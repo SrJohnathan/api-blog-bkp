@@ -144,6 +144,7 @@ pub async fn insert_no_file(db: ConnectionManager<'_>, data: Json<NewPostIsert>)
     //let id = Uuid::new_v4();
 
     let new_post = NewPost {
+        descripton : data.description.clone(),
         categoria_id: data.categoria_id,
         conteudo: data.conteudo.clone(),
         tipo: data.tipo.clone(),
@@ -167,6 +168,7 @@ pub async fn update(db: ConnectionManager<'_>, task: Json<Post>) -> Result<statu
 
 
     let new_post = NewPost {
+        descripton : task.0.description,
         titulo: task.0.titulo,
         img: task.0.img,
         language:task.0.language,
