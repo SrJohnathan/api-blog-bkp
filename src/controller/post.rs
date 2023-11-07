@@ -36,9 +36,9 @@ pub async fn all_lang(db: ConnectionManager<'_>,lang:Language) -> Result<status:
 
 /// # Buscar todas as Posts por Views
 #[openapi(tag = "Post")]
-#[get("/<lang>/post/views/<limit>")]
-pub async fn all_lang_views(db: ConnectionManager<'_>,lang:Language,limit:i64) -> Result<status::Accepted<Json<Vec<Post>>>, status::BadRequest<String>> {
-    match repository::post::get_all_posts_lang_views(db.0,lang,limit).await {
+#[get("/post/<lang>/views/<limit>/<category>")]
+pub async fn all_lang_views(db: ConnectionManager<'_>,lang:Language,category:String,limit:i64) -> Result<status::Accepted<Json<Vec<Post>>>, status::BadRequest<String>> {
+    match repository::post::get_post_by_viwes(db.0,category,limit,lang).await {
         Ok(x) => Ok(status::Accepted(Some(Json(x)))),
         Err(x) => Err(status::BadRequest(Some(x.to_string())))
     }
@@ -64,6 +64,10 @@ pub async fn all_limit(db: ConnectionManager<'_>,limit:i64,init:i64,asc:String,c
         Err(x) => Err(status::BadRequest(Some(x.to_string())))
     }
 }
+
+
+
+
 
 
 /// # a chamar ,adiciona uma view no  Post

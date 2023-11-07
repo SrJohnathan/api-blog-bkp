@@ -1,4 +1,6 @@
 use dotenvy::dotenv;
+use rocket::Config;
+use rocket::data::{Limits, ToByteUnit};
 use rocket_cors::CorsOptions;
 use rocket_okapi::rapidoc::{GeneralConfig, HideShowConfig, make_rapidoc, RapiDocConfig, Theme, UiConfig};
 use rocket_okapi::settings::UrlObject;
@@ -32,7 +34,15 @@ async fn main() {
 
     let db = models::connection("DATABASE_URL".to_string()).await.unwrap();
 
-    let _ = rocket::build()
+    let config = Config::figment()
+        .merge(("limits",Limits::new()
+            .limit("forms", 100.mebibytes()) // 100 MB
+            .limit("file", 100.mebibytes()) // 100 MB
+            .limit("data", 100.mebibytes())));
+
+
+    let _ = rocket::custom(config)
+
         .attach(CorsOptions::default().to_cors().unwrap())
         .manage(db)
         .mount("/",controller::routes())

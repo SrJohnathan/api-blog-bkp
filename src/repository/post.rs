@@ -51,11 +51,7 @@ pub async fn get_all_posts_lang(
     post::table.filter(post::dsl::language.eq(lang)).load_async(conn).await
 }
 
-pub async fn get_all_posts_lang_views(
-    conn: &PgAsyncConnection,lang:Language, n: i64
-) -> AsyncResult<Vec<Post>> {
-    post::table.filter(post::dsl::language.eq(lang)) .order(post::dsl::total_views.desc()).limit(n).load_async(conn).await
-}
+
 
 pub async fn get_last_n_posts(
     conn: &PgAsyncConnection,
@@ -160,6 +156,41 @@ pub async fn get_post_by_category(
     category_id: i32,
 ) -> AsyncResult<Vec<Post>> {
     post::table.filter(post::categoria_id.eq(category_id)).load_async(conn).await
+}
+
+
+pub async fn get_post_by_viwes(
+    conn: &PgAsyncConnection,
+    category:String,
+    limit: i64,
+    lang:Language
+) -> AsyncResult<Vec<Post>> {
+
+     match category.parse::<i32>().is_ok() {
+        true => {
+
+            post::table
+                .filter(post::categoria_id.eq(category.parse::<i32>().unwrap()))
+                .filter(post::dsl::language.eq(lang))
+                .order(post::total_views.desc())
+                .limit(limit)
+                .load_async(conn).await
+        }
+        false => {
+
+
+            post::table
+                .order(post::total_views.desc())
+                .filter(post::dsl::language.eq(lang))
+                .limit(limit)
+                .load_async(conn).await
+
+        }
+
+    }
+
+
+
 }
 
 pub async fn update_post_by_id(
