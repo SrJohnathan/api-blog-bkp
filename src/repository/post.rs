@@ -1,4 +1,4 @@
-use diesel::{ExpressionMethods, QueryDsl};
+use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl};
 
 use tokio_diesel::{AsyncResult, AsyncRunQueryDsl};
 use crate::models::models::{Category, GetCategory, Post};
@@ -17,8 +17,11 @@ macro_rules! get_all_category_asc_desc {
                 true => {
                     let category_id = category_parsed.unwrap();
                     let g = $table.inner_join($categoria_table)
-                    .or_filter(tipo.eq(TipoPost::Texto)).or_filter(tipo.eq(TipoPost::Html))
-                    .filter(categoria_id.eq(category_id)).order($id);
+                    .filter(
+                        tipo.eq(TipoPost::Texto)
+                    .and(tipo.eq(TipoPost::Html))
+                    .and(categoria_id.eq(category_id)) )
+                    .order($id);
 
                        println!("ID");
 
