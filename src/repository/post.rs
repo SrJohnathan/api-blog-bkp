@@ -181,9 +181,12 @@ pub async fn get_post_by_viwes(
     match category.parse::<i32>().is_ok() {
         true => {
             post::table
-                .filter(post::categoria_id.eq(category.parse::<i32>().unwrap()))
-                .or_filter(post::tipo.eq(TipoPost::Texto)).or_filter(post::tipo.eq(TipoPost::Html))
-                .filter(post::dsl::language.eq(lang))
+                .filter(post::categoria_id.eq(category.parse::<i32>().unwrap())
+                    .and(post::dsl::language.eq(lang))
+                    .and(post::tipo.eq(TipoPost::Texto)).or(post::tipo.eq(TipoPost::Html))
+
+                )
+
                 .order(post::total_views.desc())
                 .limit(limit)
                 .load_async(conn).await
@@ -191,8 +194,7 @@ pub async fn get_post_by_viwes(
         false => {
             post::table
                 .order(post::total_views.desc())
-                .or_filter(post::tipo.eq(TipoPost::Texto)).or_filter(post::tipo.eq(TipoPost::Html))
-                .filter(post::dsl::language.eq(lang))
+                .filter(post::dsl::language.eq(lang) .and(post::tipo.eq(TipoPost::Texto)).or(post::tipo.eq(TipoPost::Html))  )
                 .limit(limit)
                 .load_async(conn).await
         }
