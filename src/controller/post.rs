@@ -4,7 +4,7 @@ use rocket::serde::json::Json;
 use rocket_okapi::openapi;
 
 
-use crate::mid::ConnectionManager;
+use crate::mid::{ConnectionManager,};
 use crate::models::models::Post;
 use crate::models::new_models::{Language, NewPost, NewPostIsert, PostWithCategory};
 use crate::repository;
@@ -43,6 +43,18 @@ pub async fn all_lang_views(db: ConnectionManager<'_>,lang:Language,category:Str
         Err(x) => Err(status::BadRequest(Some(x.to_string())))
     }
 }
+
+
+/// # Buscar todas as Posts por Views
+#[openapi(tag = "Post")]
+#[get("/post/<lang>/audio/<limit>/<category>")]
+pub async fn all_lang_audio(db: ConnectionManager<'_>,lang:Language,category:String,limit:i64) -> Result<status::Accepted<Json<Vec<Post>>>, status::BadRequest<String>> {
+    match repository::post::get_post_by_audio(db.0,category,limit,lang).await {
+        Ok(x) => Ok(status::Accepted(Some(Json(x)))),
+        Err(x) => Err(status::BadRequest(Some(x.to_string())))
+    }
+}
+
 
 ///# Buscar todas as Posts
 ///

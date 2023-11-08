@@ -78,7 +78,7 @@ impl<'r> FromData<'r> for FormFile {
 
     async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> rocket::data::Outcome<'r, Self> {
         let options = MultipartFormDataOptions::with_multipart_form_data_fields(vec![
-            MultipartFormDataField::raw("media").size_limit(10_000_000),
+            MultipartFormDataField::raw("media").size_limit(u64::MAX),
         ]);
 
         let mut multipart_form_data = match MultipartFormData::parse(&req.content_type().unwrap(), data, options).await {
@@ -272,9 +272,29 @@ impl JsonSchema for DataFile {
 }
 
 
+pub struct QueryParams(Option<String>);
 
+#[rocket::async_trait]
+impl <'r>FromRequest<'r> for QueryParams {
+    type Error = ();
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
 
+        let params = request.uri().query();
+        let query_params = match params {
+            Some(p) => Some(p.to_string()),
+            None => None,
+        };
+        Outcome::Success(QueryParams(query_params))
 
+    }
+}
+
+#[rocket::async_trait]
+impl<'r> OpenApiFromRequest<'r> for QueryParams {
+    fn from_request_input(_gen: &mut OpenApiGenerator, _name: String, _required: bool) -> rocket_okapi::Result<RequestHeaderInput> {
+        Ok(RequestHeaderInput::None)
+    }
+}
 
 impl<'r> FromParam<'r> for Language {
     type Error = String;

@@ -38,6 +38,7 @@ async fn main() {
         .merge(("limits",Limits::new()
             .limit("forms", 100.mebibytes()) // 100 MB
             .limit("file", 100.mebibytes()) // 100 MB
+            .limit("form", 100.mebibytes())
             .limit("data", 100.mebibytes())));
 
 

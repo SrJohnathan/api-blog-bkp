@@ -19,7 +19,7 @@ use schemars::{JsonSchema};
 use serde_derive::{Deserialize, Serialize};
 
 
-use crate::schema::{category,post,ads,files,settings};
+use crate::schema::{category,post,ads,files,settings,matters};
 
 
 #[derive(Debug,DbEnum,Deserialize, Serialize, JsonSchema,Clone)]
@@ -62,6 +62,16 @@ pub struct NewSettings {
 
 }
 
+
+#[derive(Insertable, Debug,Deserialize,JsonSchema)]
+#[diesel(table_name = matters)]
+pub struct NewMatters {
+    pub button:String,
+    pub title:String,
+    pub content :Option<String>,
+    pub active: bool,
+
+}
 
 #[derive(Insertable, Debug,Deserialize,AsChangeset)]
 #[diesel(table_name = post)]

@@ -3,7 +3,7 @@ use diesel::{ExpressionMethods, QueryDsl};
 
 use tokio_diesel::{AsyncResult, AsyncRunQueryDsl};
 use crate::models::models::{Category, GetCategory, Post};
-use crate::models::new_models::{Language, NewPost, PostWithCategory};
+use crate::models::new_models::{Language, NewPost, PostWithCategory, TipoPost};
 use crate::models::PgAsyncConnection;
 use crate::schema::post;
 
@@ -70,11 +70,13 @@ pub async fn get_last_n_posts(
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
+                )).filter(language.eq(lang)).or_filter(tipo.eq(TipoPost::Texto)).or_filter(tipo.eq(TipoPost::Html))
+                    .limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                                                     crate::schema::post::all_columns,
                                                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
+                )).or_filter(tipo.eq(TipoPost::Texto)).or_filter(tipo.eq(TipoPost::Html))
+                    .filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
             }
         }
         "desc" =>{
@@ -83,11 +85,13 @@ pub async fn get_last_n_posts(
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
+                )).or_filter(tipo.eq(TipoPost::Texto)).or_filter(tipo.eq(TipoPost::Html))
+                    .filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
+                )).or_filter(tipo.eq(TipoPost::Texto)).or_filter(tipo.eq(TipoPost::Html))
+                    .filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
             }
         }
         _ => {
@@ -96,11 +100,11 @@ pub async fn get_last_n_posts(
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
+                )).or_filter(tipo.eq(TipoPost::Texto)).or_filter(tipo.eq(TipoPost::Html)).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
+                )).or_filter(tipo.eq(TipoPost::Texto)).or_filter(tipo.eq(TipoPost::Html)).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post,Category)>(conn).await
             }
         }
     };
@@ -171,6 +175,7 @@ pub async fn get_post_by_viwes(
 
             post::table
                 .filter(post::categoria_id.eq(category.parse::<i32>().unwrap()))
+                .or_filter(post::tipo.eq(TipoPost::Texto)).or_filter(post::tipo.eq(TipoPost::Html))
                 .filter(post::dsl::language.eq(lang))
                 .order(post::total_views.desc())
                 .limit(limit)
@@ -181,6 +186,7 @@ pub async fn get_post_by_viwes(
 
             post::table
                 .order(post::total_views.desc())
+                .or_filter(post::tipo.eq(TipoPost::Texto)).or_filter(post::tipo.eq(TipoPost::Html))
                 .filter(post::dsl::language.eq(lang))
                 .limit(limit)
                 .load_async(conn).await
@@ -192,6 +198,46 @@ pub async fn get_post_by_viwes(
 
 
 }
+
+
+
+pub async fn get_post_by_audio(
+    conn: &PgAsyncConnection,
+    category:String,
+    limit: i64,
+    lang:Language
+) -> AsyncResult<Vec<Post>> {
+
+    match category.parse::<i32>().is_ok() {
+        true => {
+
+            post::table
+                .filter(post::categoria_id.eq(category.parse::<i32>().unwrap()))
+                .or_filter(post::tipo.eq(TipoPost::Audio))
+                .filter(post::dsl::language.eq(lang))
+                .order(post::data_criacao.desc())
+                .limit(limit)
+                .load_async(conn).await
+        }
+        false => {
+
+
+            post::table
+                .order(post::data_criacao.desc())
+                .or_filter(post::tipo.eq(TipoPost::Audio))
+                .filter(post::dsl::language.eq(lang))
+                .limit(limit)
+                .load_async(conn).await
+
+        }
+
+    }
+
+
+
+}
+
+
 
 pub async fn update_post_by_id(
     conn: &PgAsyncConnection,

@@ -32,6 +32,17 @@ pub struct Settings {
 }
 
 
+
+#[derive(Queryable, Debug, Serialize, JsonSchema)]
+pub struct Matters {
+    pub id: i32,
+    pub button:String,
+    pub title:String,
+   pub content :Option<String>,
+   pub active: bool,
+
+}
+
 #[derive(Queryable, Debug, Serialize, Deserialize, JsonSchema)]
 #[diesel(table_name = post)]
 pub struct Post {

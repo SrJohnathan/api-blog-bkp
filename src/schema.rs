@@ -49,6 +49,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    matters (id) {
+        id -> Int4,
+        #[max_length = 30]
+        button -> Varchar,
+        #[max_length = 255]
+        title -> Varchar,
+        content -> Nullable<Text>,
+        active -> Bool,
+    }
+}
+
+diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Lang;
     use super::sql_types::TipoPost;
@@ -84,6 +96,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     ads,
     category,
     files,
+    matters,
     post,
     settings,
 );
