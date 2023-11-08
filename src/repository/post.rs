@@ -10,7 +10,7 @@ use crate::schema::post;
 
 
 macro_rules! get_all_category_asc_desc {
-    ($category:expr, $table:expr, $id:expr,$categoria_table:expr) => {
+    ($category:expr, $table:expr, $id:expr,$categoria_table:expr,$lang:expr) => {
         {
             let category_parsed = $category.parse::<i32>();
             match category_parsed.is_ok() {
@@ -20,7 +20,8 @@ macro_rules! get_all_category_asc_desc {
                     .filter(
                         tipo.eq(TipoPost::Texto)
                     .and(tipo.eq(TipoPost::Html))
-                    .and(categoria_id.eq(category_id)) )
+                    .and(categoria_id.eq(category_id))
+                    .and(language.eq($lang)))
                     .order($id);
 
                        println!("ID");
@@ -28,7 +29,12 @@ macro_rules! get_all_category_asc_desc {
                     GetCategory::ID(g)
                 }
                 false => {
-                    let g = $table.inner_join($categoria_table).order($id);
+                    let g = $table.inner_join($categoria_table)
+                    .filter(
+                        tipo.eq(TipoPost::Texto)
+                    .and(tipo.eq(TipoPost::Html))
+                    .and(language.eq($lang)))
+                    .order($id);
 
                          println!("ALL");
 
@@ -74,44 +80,44 @@ pub async fn get_last_n_posts(
 
     let res = match ord.as_str() {
         "asc" => {
-            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table);
+            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table,lang);
             match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang))
+                ))
                     .limit(n).offset(offset).load_async::<(Post, Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await
+                )).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await
             }
         }
         "desc" => {
-            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.desc(),crate::schema::category::table);
+            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.desc(),crate::schema::category::table,lang);
             match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await,
+                )).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset)
+                )).limit(n).offset(offset)
                     .load_async::<(Post, Category)>(conn).await
             }
         }
         _ => {
-            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table);
+            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table,lang);
             match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await,
+                )).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await,
                 GetCategory::ID(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).filter(language.eq(lang)).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await
+                )).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await
             }
         }
     };
