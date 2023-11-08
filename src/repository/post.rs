@@ -12,6 +12,7 @@ use crate::schema::post;
 macro_rules! get_all_category_asc_desc {
     ($category:expr, $table:expr, $id:expr,$categoria_table:expr,$lang:expr) => {
         {
+
             let category_parsed = $category.parse::<i32>();
             match category_parsed.is_ok() {
                 true => {
@@ -19,12 +20,12 @@ macro_rules! get_all_category_asc_desc {
                     let g = $table.inner_join($categoria_table)
                     .filter(
                         tipo.eq(TipoPost::Texto)
-                    .and(tipo.eq(TipoPost::Html))
+                    .or(tipo.eq(TipoPost::Html))
                     .and(categoria_id.eq(category_id))
                     .and(language.eq($lang)))
                     .order($id);
 
-                       println!("ID");
+
 
                     GetCategory::ID(g)
                 }
@@ -32,7 +33,7 @@ macro_rules! get_all_category_asc_desc {
                     let g = $table.inner_join($categoria_table)
                     .filter(
                         tipo.eq(TipoPost::Texto)
-                    .and(tipo.eq(TipoPost::Html))
+                    .or(tipo.eq(TipoPost::Html))
                     .and(language.eq($lang)))
                     .order($id);
 
@@ -100,11 +101,11 @@ pub async fn get_last_n_posts(
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
                 )).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await,
+
                 GetCategory::ID(x) => x.select((
                     crate::schema::post::all_columns,
                     crate::schema::category::all_columns
-                )).limit(n).offset(offset)
-                    .load_async::<(Post, Category)>(conn).await
+                )).limit(n).offset(offset).load_async::<(Post, Category)>(conn).await
             }
         }
         _ => {
