@@ -81,7 +81,7 @@ pub async fn get_last_n_posts(
 
     let res = match ord.as_str() {
         "asc" => {
-            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table,lang);
+            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table,lang.clone());
             match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
@@ -95,7 +95,7 @@ pub async fn get_last_n_posts(
             }
         }
         "desc" => {
-            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.desc(),crate::schema::category::table,lang);
+            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.desc(),crate::schema::category::table,lang.clone());
             match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
@@ -109,7 +109,7 @@ pub async fn get_last_n_posts(
             }
         }
         _ => {
-            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table,lang);
+            let querry_category: GetCategory<_, _> = get_all_category_asc_desc!(category,post,id.asc(),crate::schema::category::table,lang.clone());
             match querry_category {
                 GetCategory::ALL(x) => x.select((
                     crate::schema::post::all_columns,
@@ -122,6 +122,38 @@ pub async fn get_last_n_posts(
             }
         }
     };
+
+
+ let cout =  match category.parse::<i32>().is_ok(){
+
+        true => {
+            let category_id = category.parse::<i32>().unwrap();
+
+            crate::schema::post::table.inner_join(crate::schema::category::table)
+            .filter(
+                tipo.eq(TipoPost::Texto)
+                    .or(tipo.eq(TipoPost::Html))
+                    .and(categoria_id.eq(category_id))
+                    .and(language.eq(lang)))
+            .load_async::<(Post, Category)>(conn).await
+        }
+        false => {
+            crate::schema::post::table.inner_join(crate::schema::category::table)
+                .filter(
+                    tipo.eq(TipoPost::Texto)
+                        .or(tipo.eq(TipoPost::Html))
+                        .and(language.eq(lang)))
+                .load_async::<(Post, Category)>(conn).await
+
+
+        }
+    };
+
+
+
+
+    let total = cout.unwrap();
+
 
 
     let r = res.unwrap();
@@ -141,6 +173,7 @@ pub async fn get_last_n_posts(
             tipo: pos.tipo.clone(),
             conteudo: pos.conteudo.clone(),
             name_category: category.name_url.clone(),
+            total_post: Some(total.len() as i32),
         }
     });
 

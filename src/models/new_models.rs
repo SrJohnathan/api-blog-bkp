@@ -121,7 +121,8 @@ pub struct PostWithCategory {
    pub data_criacao: Option<NaiveDateTime>,
    pub tipo: TipoPost,
    pub conteudo: Option<String>,
-   pub name_category: String
+   pub name_category: String,
+   pub total_post: Option<i32>
 
 }
 
