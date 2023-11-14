@@ -27,3 +27,19 @@ pub async  fn get_by_id(conn: &PgAsyncConnection, settings_id: i32) -> AsyncResu
     settings::table.filter(settings::id.eq(settings_id)).first_async(conn).await
 
 }
+
+
+pub async fn updade(
+    conn: &PgAsyncConnection,
+    post_id: i32,
+    new : &NewSettings
+) -> AsyncResult<Settings> {
+    match diesel::update(settings::table.filter(settings::id.eq(post_id)))
+        .set(new)
+        .returning(settings::all_columns)
+        .get_result_async(conn)
+        .await {
+        Ok(_x) => Ok(_x),
+        Err(e) => Err(e)
+    }
+}

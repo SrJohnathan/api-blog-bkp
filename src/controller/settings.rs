@@ -1,4 +1,4 @@
-use rocket::{delete, get, post};
+use rocket::{delete, get, post, put};
 use rocket::response::status;
 use rocket::response::status::{Accepted, BadRequest, NoContent};
 use rocket::serde::json::Json;
@@ -58,5 +58,16 @@ pub async  fn insert(db:ConnectionManager<'_>,task:Json<NewSettings>) -> Result<
     match  repository::settings::insert(db.0,&task).await {
         Ok(x) => Ok( status::Created::new("".to_string()).body(Json(x)) ),
         Err(x) => Err( status::BadRequest(Some(x.to_string())))
+    }
+}
+
+
+
+#[openapi(tag = "Settings")]
+#[put("/settings/<id>", format = "application/json", data = "<task>")]
+pub async  fn update(db:ConnectionManager<'_>,task:Json<NewSettings>,id:i32) -> Result<status::Created<Json<Settings>>,status::BadRequest<String>>    {
+    match  repository::settings::updade(db.0,id,&task).await {
+        Ok(x) => Ok( status::Created::new("".to_string()).body(Json(x)) ),
+        Err(e) => Err( status::BadRequest(Some(e.to_string())))
     }
 }

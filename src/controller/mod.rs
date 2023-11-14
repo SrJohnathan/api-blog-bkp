@@ -45,6 +45,7 @@ pub fn routes() -> Vec<Route> {
         settings::fisrt_name,
         settings::insert,
         settings::delete,
+        settings::update,
 
 
         matters::all,

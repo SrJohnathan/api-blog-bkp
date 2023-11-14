@@ -54,7 +54,7 @@ pub struct NewCategory {
 }
 
 
-#[derive(Insertable, Debug,Deserialize,JsonSchema)]
+#[derive(Insertable, Debug,Deserialize,JsonSchema,AsChangeset)]
 #[diesel(table_name = settings)]
 pub struct NewSettings {
     pub name: String,
