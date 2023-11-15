@@ -184,7 +184,7 @@ pub async fn update(db: ConnectionManager<'_>, task: Json<Post>) -> Result<statu
 
 
     let new_post = NewPost {
-        descripton : task.0.description,
+        descripton : task.0.descripton,
         titulo: task.0.titulo,
         img: task.0.img,
         language:task.0.language,

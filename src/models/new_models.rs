@@ -1,5 +1,8 @@
 use chrono::NaiveDateTime;
-use diesel::{AsChangeset, Insertable, Queryable};
+use diesel::{AsChangeset, Associations, deserialize, Identifiable, Insertable, Queryable, Selectable};
+use diesel::deserialize::FromSql;
+use diesel::pg::Pg;
+use diesel::sql_types::Untyped;
 use diesel_derive_enum::DbEnum;
 
 
@@ -52,6 +55,26 @@ pub struct NewCategory {
     pub name_fr: String,
     pub active: bool,
 }
+
+
+#[derive(Debug, Queryable,  PartialEq,Deserialize,Serialize,JsonSchema)]
+pub struct CategoryWithTotalPosts {
+    pub id: i32,
+    pub name_url: String,
+    pub name_pt: String,
+    pub name_en: String,
+    pub name_es: String,
+    pub name_fr: String,
+    pub active: bool,
+    pub total_posts: i64,
+}
+
+
+
+
+
+
+
 
 
 #[derive(Insertable, Debug,Deserialize,JsonSchema,AsChangeset)]

@@ -5,14 +5,17 @@
 
 
 use chrono::NaiveDateTime;
-use diesel::Queryable;
+use diesel::{Queryable, Selectable};
 use diesel::sql_types::Json;
 use schemars::JsonSchema;
 use serde_derive::{Deserialize, Serialize};
 use crate::models::new_models::{Language, TipoPost};
 
+use crate::schema::{category,post,ads,files,settings,matters};
 
-#[derive(Queryable, Debug, Serialize, JsonSchema)]
+
+#[derive(Queryable, Debug, Serialize, JsonSchema,Selectable)]
+#[diesel(table_name = category)]
 pub struct Category {
     pub id: i32,
     pub name_url: String,
@@ -43,12 +46,12 @@ pub struct Matters {
 
 }
 
-#[derive(Queryable, Debug, Serialize, Deserialize, JsonSchema)]
+#[derive(Queryable, Debug, Serialize, Deserialize, JsonSchema,Selectable)]
 #[diesel(table_name = post)]
 pub struct Post {
     pub id: i32,
     pub titulo: String,
-    pub description: String,
+    pub descripton: String,
     pub img: Option<String>,
     pub language: Language,
     pub categoria_id: Option<i32>,

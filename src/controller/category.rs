@@ -1,10 +1,11 @@
 use rocket::{delete, get, post};
 use rocket::response::status;
+use rocket::response::status::{Accepted, BadRequest};
 use rocket::serde::json::Json;
 use rocket_okapi::openapi;
 use crate::mid::ConnectionManager;
 use crate::models::models::Category;
-use crate::models::new_models::NewCategory;
+use crate::models::new_models::{CategoryWithTotalPosts, NewCategory};
 use crate::repository;
 
 
@@ -12,8 +13,8 @@ use crate::repository;
 /// # Buscar todas as categorias
 #[openapi(tag = "Category")]
 #[get("/category")]
-pub async  fn all(db:ConnectionManager<'_>) -> Result<status::Accepted<Json<Vec<Category>>>,status::BadRequest<String>>  {
-   match  repository::cotegory::get_all_categories(db.0).await {
+pub async  fn all(db:ConnectionManager<'_>) -> Result<Accepted<Json<Vec<CategoryWithTotalPosts>>>, BadRequest<String>> {
+   match  repository::cotegory::get_categories_with_total_posts(db.0).await {
        Ok(x) => Ok( status::Accepted(Some(Json(x))) ),
        Err(x) => Err( status::BadRequest(Some(x.to_string())))
    }
